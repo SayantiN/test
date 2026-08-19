@@ -1,0 +1,42 @@
+﻿var prefeeredPartner = new function () {
+
+  this.OpenDetails = function (seqNo) {
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "PreferredPartners/FetchDetails",
+      data: {
+        seqNo: seqNo
+      },
+      beforeSend: function () {
+        $("#preferredModal").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+      },
+      success: function (resultJson) {
+        $('#preferredModal').html('');
+        $('#preferredModal').html(resultJson);
+      },
+      error: function (msg) {
+        $("#preferredModal").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+
+  this.GotoPreferredPartners = function (PageNo) {
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "PreferredPartners/FetchByPageNo",
+      data: {
+        pageNo: PageNo
+      },
+      success: function (resultJson) {
+        $('#PreferredView').html('');
+        $('#PreferredView').html(resultJson);
+      },
+      error: function (msg) {
+        $('#PreferredViewLoader').html('');
+        $("#PreferredViewLoaderError").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+}

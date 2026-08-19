@@ -1,0 +1,1853 @@
+﻿var isgItinerary = new function () {
+  var me = this;
+
+  this.ReplacedViewContent = function (view, itineraryNo, isGroup, ActualViewName) {
+    try {
+      if (itineraryNo == "") {
+        itineraryNo = $('#ItineraryNo').val();
+      }
+      $("#" + view + "Tab").removeClass('selected');
+      $($('#' + view + "Tab").parent()).removeClass("mm-listitem_selected");
+      if (view == "Itinerary") {
+        $('.img_slider').addClass('main_itinerary');
+        //$('.Itineraryheadsntnc').show();
+      }
+      else {
+        $('.img_slider').removeClass('main_itinerary');
+        //$('.Itineraryheadsntnc').hide();
+      }
+      var ViewURL = hostURL + "Itinerary/" + view + "ViewContent";
+      var dataParam = { ItineraryNo: itineraryNo, publishVersion: parseInt($("#PublishVersion").val()) || 0 };
+      if (!myAccountCommon.isNullOrEmpty(isGroup) && isGroup.toString().toLowerCase() == 'true' && view == 'Itinerary') {
+        var genericTourCode = $('#dhruv_analytics_generictourcode').val();
+        var depDate = $('#dhruv_analytics_depDate').val();
+        ViewURL = hostURL + "Common/ConvertAPItoPDF";
+        dataParam = { Id: genericTourCode + "|" + depDate }; //? countrycode = en_gb 
+      }
+
+      if (typeof Offline != "undefined" && Offline.state == "up") {
+        $.ajax({
+          cache: false,
+          async: true,
+          url: ViewURL,
+          data: dataParam,
+          beforeSend: function () {
+            $('.viewall_btnblk').show();
+            $("#ItinImageReplacedContent").show();
+            $("#ReplacedContent").html('');
+          },
+          success: function (resultJson) {
+            $('.viewall_btnblk').hide();
+            $("#ItinImageReplacedContent").hide();
+            $('#ReplacedContent').html('');
+            $('#ReplacedContent').show();
+            $('#ReplacedContent').html(resultJson);
+            $('.no_padding_all.hdsgnpg_rightpnl').removeClass('blk_visible');
+            $('.hamburger-mobi-menu').removeClass('open');
+            $('.icon-btn').removeClass('show')
+            $('html,body').animate({ scrollTop: $("#ReplacedContent").offset().top - 150 }, 'slow');
+            $('.hdsgnpg_rtnvlst').find('li').each(function () {
+              $(this).removeClass('cur');
+            });
+            $('.trip__menu').find('li').each(function () {
+              $(this).find("a").removeClass('selected');
+            })
+            //$('#ddlListTab .filter-option').text(me.ActualViewName(view));
+            $('#ddlListTab .filter-option').val(me.ActualViewName(view));
+            if (ActualViewName != undefined) {
+              $('#ddlListTab .filter-option').text(ActualViewName);
+            }
+            $("#" + view + "Tab").parent().addClass('cur');
+            $('.hdsgnpg_rtnvblk').find('li').each(function () {
+              $(this).find("a").removeClass('selected');
+            });
+
+            $("#" + view + "Tab").addClass('selected');
+            $($(".fixed_sidebar").find("#" + view + "Tab")).addClass("selected");
+
+            $('#ddlListTab').find('option').each(function () {
+              $(this).removeClass('selected');
+            });
+            $("#ddl" + view).addClass('selected');
+            myAccountCommon.ToggleItinDetils();
+
+            var mmMenu = $("#Tripmenu").data("mmenu");
+            if (mmMenu) {
+              mmMenu.close();
+            }
+          },
+          error: function (msg) {
+            $('#ReplacedContent').html('<center><p>' + MyAccountConstants.GenericErrorMsg + '</p></center>');
+            $("#ItinImageReplacedContent").hide();
+            $('.viewall_btnblk').hide();
+          }
+        });
+      }
+      else {
+        var db = new PouchDB('myAppDb');
+        var ItineraryDetail = null;
+        var itineraryNoVersion = itineraryNo + "_" + $("#PublishVersion").val();
+        db.get(itineraryNoVersion).then(function (doc) {
+          ItineraryDetail = doc;
+          $('.viewall_btnblk').show();
+          $("#ItinImageReplacedContent").show();
+          $("#ReplacedContent").html('');
+
+          $('.viewall_btnblk').hide();
+          $("#ItinImageReplacedContent").hide();
+          $('#ReplacedContent').html('');
+          $('#ReplacedContent').show();
+          switch (view) {
+            case "Itinerary":
+              $('#ReplacedContent').html(ItineraryDetail.Itinerary);
+              break;
+            case "Accommodation":
+              $('#ReplacedContent').html(ItineraryDetail.Accommodation);
+              break;
+            case "Notes":
+              $('#ReplacedContent').html(ItineraryDetail.Notes);
+              break;
+            case "Cost":
+              $('#ReplacedContent').html(ItineraryDetail.Cost);
+              break;
+            case "CoverLetter":
+              $('#ReplacedContent').html(ItineraryDetail.CoverLetter);
+              break;
+            case "Flight":
+              $('#ReplacedContent').html(ItineraryDetail.Flight);
+              break;
+            case "Specialists":
+              $('#ReplacedContent').html(ItineraryDetail.Specialists);
+              break;
+            case "TourLeader":
+              $('#ReplacedContent').html(ItineraryDetail.TourLeader);
+              break;
+            case "QuickItinerary":
+              $('#ReplacedContent').html(ItineraryDetail.QuickItinerary);
+              break;
+            case "TourHighLights":
+              $('#ReplacedContent').html(ItineraryDetail.TourHighLights);
+              break;
+          }
+
+          $('.hdsgnpg_rtnvlst').find('li').each(function () {
+            $(this).removeClass('cur');
+          });
+          $("#" + view + "Tab").parent().addClass('cur');
+
+          $('#ddlListTab').find('option').each(function () {
+            $(this).removeClass('selected');
+          });
+          $("#ddl" + view).addClass('selected');
+          myAccountCommon.ToggleItinDetils();
+        }).catch(function (err) {
+        });
+      }
+    }
+    catch (ex) {
+      $("#ItinImageReplacedContent").hide();
+      $('.viewall_btnblk').hide();
+    }
+  }
+
+  this.ActualViewName = function (view) {
+    switch (view) {
+      case "Itinerary":
+        return "Itinerary";
+        break;
+      case "Accommodation":
+        return "Accommodation"
+        break;
+      case "Notes":
+        return "Notes"
+        break;
+      case "ItineraryAtAGlance":
+        return "Itinerary in brief"
+        break;
+      case "Cost":
+        return "Cost"
+        break;
+      case "CoverLetter":
+        return "Cover Letter";
+        break;
+      case "Flight":
+        return "Flight";
+        break;
+      case "Specialists":
+        return "Specialists";
+        break;
+      case "TourLeader":
+        return "Tour Leader";
+        break;
+      case "QuickItinerary":
+        return "QuickItinerary";
+        break;
+      case "TourHighLights":
+        return "TourHighLights";
+        break;
+      case "JoiningInfo":
+        return "Joining Information";
+        break;
+      case "Extension":
+        return "Extension";
+        break;
+      case "Map":
+        return "Map";
+        break;
+      default:
+        return view;
+    }
+  }
+
+  this.ReplacedViewContentOnMenuSelect = function (view, itineraryNo, callBackFunc) {
+    try {
+      var val = ($("#hdnShowOneStopDestinationsInd").val() || "").toString().toLowerCase();
+      if (view == "Overview" || view == "HIOverview" || val == "true") {
+        $(".common_header_blk").hide();  //itin intro on other pages
+        $("#OverViewHeader").html('').hide();   //intor on banner on overview page
+        $("#ItineraryHeader").html('').hide();
+        $(".divider_line").hide();
+        $("#ReplacedContent").addClass('overview_loader');
+      }
+      else {
+        $(".common_header_blk").show();
+        $("#OverViewHeader").hide();
+        $("#ItineraryHeader").hide();//intor on banner on overview page
+        $(".divider_line").show();
+        $("#ReplacedContent").removeClass('overview_loader');
+      }
+
+      var mmMenu = $("#tripMenu").data("mmenu");
+      if (mmMenu) {
+        mmMenu.close();
+      }
+      var menuNameforSmallScreen;
+      switch (view) {
+        case "Cost":
+          menuNameforSmallScreen = "Pricing";
+          break;
+        case "Overview":
+          menuNameforSmallScreen = "Overview";
+          break;
+        case "Fullitinerary":
+          menuNameforSmallScreen = "Full Itinerary";
+          break;
+        case "Accommodations":
+          menuNameforSmallScreen = "Accommodation";
+          break;
+        case "Map":
+          menuNameforSmallScreen = "Map";
+          break;
+        case "Flights":
+          menuNameforSmallScreen = "Flights";
+          break;
+        case "Information":
+          menuNameforSmallScreen = "Important Information";
+          break;
+        case "HIFullitinerary":
+          menuNameforSmallScreen = "HIFullitinerary";
+          break;
+        case "HIOverview":
+          menuNameforSmallScreen = "HIOverview";
+          break;
+        case "HIAccommodations":
+          menuNameforSmallScreen = "HIAccommodations";
+          break;
+        case "HIFlight":
+          menuNameforSmallScreen = "HIFlight";
+          break;
+        case "HIMap":
+          menuNameforSmallScreen = "HIMap";
+          break;
+
+        
+      }
+
+      $(".page_title").text(menuNameforSmallScreen)
+
+      var ajaxData = view == "Itinerary" ? { id: itineraryNo } : { ItineraryNo: itineraryNo };
+
+      $(".myacc_linklst_04").find("li").each(function () {
+        $(this).removeClass("cur");
+      });
+      $("." + view).addClass("cur");
+
+      if (view != "Itinerary") {
+        $.ajax({
+          cache: false,
+          async: true,
+          url: hostURL + "Itinerary/" + view + "Detail",
+          data: {  //     ajaxData,
+            ItineraryNo: itineraryNo
+          },
+          beforeSend: function () {
+
+            $("#ReplacedContent").html('');
+            $('#ReplacedContent').html('<div class="loader_icon" style="background-image: url(' + hostURL + 'Content/BR/Images/UK/loader.svg); width: 100%; height: 200px; background-repeat: no-repeat; background-position: center;"></div>');
+            $('html,body').animate({ scrollTop: $("#ReplacedContent").offset().top - 150 }, 'slow');
+          },
+          success: function (resultJson) {
+            //var mmMenu = $("#tripMenu").data("mmenu");
+            //if (mmMenu) {
+            //  mmMenu.close();
+            //}
+            //if ($("#tripMenu.mm-menu_opened").length > 0)
+            //{
+            //  $(".menuIcon").addClass("menu_opened");
+            //}
+            //else
+            //{
+            //  $(".menuIcon").addClass("menu_closed");
+            //}
+            // $('.itin_hdr_panel').find(".menuIcon").toggleClass("menu_opened menu_closed");
+            $('.itin_hdr_panel').find(".menuIcon").removeClass("menu_opened");
+            $('.itin_hdr_panel').find(".menuIcon").addClass("menu_closed");
+            $('.viewall_btnblk').hide();
+            $("#ItinImageReplacedContent").hide();
+            $("#ReplacedContent").removeClass('overview_loader');
+            $('#ReplacedContent').show();
+            $('#ReplacedContent').html(resultJson);
+            $('html,body').animate({ scrollTop: $("#ReplacedContent").offset().top - 150 }, 'slow');
+            $('.hdsgnpg_rtnvlst').find('li').each(function () {
+              $(this).removeClass('cur');
+            });
+
+            if (callBackFunc) {
+              callBackFunc();
+            }
+          },
+          error: function (msg) {
+            $('#ReplacedContent').html('<center><p>' + MyAccountConstants.GenericErrorMsg + '</p></center>');
+            $("#ItinImageReplacedContent").hide();
+            $('.viewall_btnblk').hide();
+          }
+        });
+      }
+      else {
+        location.reload(true);
+      }
+    }
+    catch (ex) {
+      $("#ItinImageReplacedContent").hide();
+      $('.viewall_btnblk').hide();
+    }
+  }
+
+  this.ChangeImpInfoMenu = function (view, itineraryNo, callbackFunc) {
+    $(".impmenu").each(function () {
+      $(this).removeClass("active")
+    });
+
+    $("." + view).addClass("active");
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/InformationDetail",
+      data: { ItineraryNo: itineraryNo, tabname: view },
+      beforeSend: function () {
+        $('#ReplacedImpInfo').html('<div style="background-image: url(' + hostURL + 'Content/BR/Images/UK/loader.svg); width: 100%; height: 200px; background-repeat: no-repeat; background-position: center;"></div>');
+      },
+      success: function (resultJson) {
+        $("#ItinImageReplacedContent").hide();
+        $('#ReplacedImpInfo').html('');
+        $('#ReplacedImpInfo').show();
+        $('#ReplacedImpInfo').html(resultJson);
+        $('html,body').animate({ scrollTop: $("#ReplacedImpInfo").offset().top - 150 }, 'slow');
+        if (callbackFunc) {
+          callbackFunc();
+        }
+      },
+      error: function (msg) {
+        $('#ReplacedImpInfo').html('<center><p>' + MyAccountConstants.GenericErrorMsg + '</p></center>');
+      }
+    });
+  }
+
+  this.ReplacedViewContentForMobile = function (view, itineraryNo) {
+    try {
+      if (view == "Itinerary") {
+        $('.img_slider').addClass('main_itinerary');
+      }
+      else {
+        $('.img_slider').removeClass('main_itinerary');
+      }
+      if (typeof Offline != "undefined" && Offline.state == "up") {
+        $.ajax({
+          cache: false,
+          async: true,
+          url: hostURL + "Itinerary/" + view + "ViewContent",
+          data: { ItineraryNo: itineraryNo },
+          beforeSend: function () {
+            $('.viewall_btnblk').show();
+            $("#ItinImageReplacedContent").show();
+            $("#ReplacedContent").html('');
+          },
+          success: function (resultJson) {
+            $('.viewall_btnblk').hide();
+            $("#ItinImageReplacedContent").hide();
+            $('#ReplacedContent').html('');
+            $('#ReplacedContent').show();
+            $('#ReplacedContent').html(resultJson);
+
+            $('.hdsgnpg_rtnvlst').find('li').each(function () {
+              $(this).removeClass('cur');
+            });
+            $("#" + view + "Tab").parent().addClass('cur');
+
+            $('#ddlListTab').find('option').each(function () {
+              $(this).removeClass('selected');
+            });
+            $("#ddl" + view).addClass('selected');
+            myAccountCommon.ToggleItinDetils();
+            var mmMenu = $("#Tripmenu").data("mmenu");
+            if (mmMenu) {
+              mmMenu.close();
+            }
+          },
+          error: function (msg) {
+            $('#ReplacedContent').html('<center><p>' + MyAccountConstants.GenericErrorMsg + '</p></center>');
+            $("#ItinImageReplacedContent").hide();
+            $('.viewall_btnblk').hide();
+          }
+        });
+      }
+      else {
+        var db = new PouchDB('myAppDb');
+        var ItineraryDetail = null;
+        var itineraryNoVersion = itineraryNo + "_" + $("#PublishVersion").val();
+        db.get(itineraryNoVersion).then(function (doc) {
+          ItineraryDetail = doc;
+          $('.viewall_btnblk').show();
+          $("#ItinImageReplacedContent").show();
+          $("#ReplacedContent").html('');
+
+          $('.viewall_btnblk').hide();
+          $("#ItinImageReplacedContent").hide();
+          $('#ReplacedContent').html('');
+          $('#ReplacedContent').show();
+          switch (view) {
+            case "Itinerary":
+              $('#ReplacedContent').html(ItineraryDetail.Itinerary);
+              break;
+            case "Accommodation":
+              $('#ReplacedContent').html(ItineraryDetail.Accommodation);
+              break;
+            case "Notes":
+              $('#ReplacedContent').html(ItineraryDetail.Notes);
+              break;
+            case "Cost":
+              $('#ReplacedContent').html(ItineraryDetail.Cost);
+              break;
+            case "CoverLetter":
+              $('#ReplacedContent').html(ItineraryDetail.CoverLetter);
+              break;
+            case "Flight":
+              $('#ReplacedContent').html(ItineraryDetail.Flight);
+              break;
+            case "Specialists":
+              $('#ReplacedContent').html(ItineraryDetail.Specialists);
+              break;
+            case "TourLeader":
+              $('#ReplacedContent').html(ItineraryDetail.TourLeader);
+              break;
+            case "QuickItinerary":
+              $('#ReplacedContent').html(ItineraryDetail.QuickItinerary);
+              break;
+            case "TourHighLights":
+              $('#ReplacedContent').html(ItineraryDetail.TourHighLights);
+              break;
+          }
+
+          $('.hdsgnpg_rtnvlst').find('li').each(function () {
+            $(this).removeClass('cur');
+          });
+          $("#" + view + "Tab").parent().addClass('cur');
+
+          $('#ddlListTab').find('option').each(function () {
+            $(this).removeClass('selected');
+          });
+          $("#ddl" + view).addClass('selected');
+          myAccountCommon.ToggleItinDetils();
+        }).catch(function (err) {
+        });
+      }
+    }
+    catch (ex) {
+      $("#ItinImageReplacedContent").hide();
+      $('.viewall_btnblk').hide();
+    }
+  }
+
+  this.ShowPredepartureInfo = function (id) {
+    var selectedTab = $('#ddlListCoun option:selected').val();
+    $(".InfoByCount").hide() //hide all div
+    $("#" + selectedTab + ".InfoByCount").show();
+    $(".tab_nav_title").hide();
+  }
+
+  this.ViewChangeOnDropdown = function () {
+    var selectedOption = $('#ddlListTab option:selected');
+    //var selectedTextTab = $('#ddlListTab option:selected').text();
+    var selectedTab = selectedOption.val();                
+    var isDocument = selectedOption.data('type');         
+
+    var ItineraryNo = $("#ItineraryNo").val();
+    var DecryptedItinNo = $("#DecryptedItinNo").val();
+    var whySteppesLink = $("#whySteppesLink").val();
+    var travelAppLink = $("#travelAppLink").val();
+    var visaData = $("#visaData").val();
+    var OnlinePaymentLink = $("#OnlinePaymentLink").val();
+    var PTQLink = $("#PTQLink").val();
+    var atolDownloadLink = $("#atolDownloadLink").val();
+    var invoiceDownloadLink = $("#invoiceDownloadLink").val();
+    var Documents = $("#ddlDocuments").attr('name');
+    var OBFLink = $("#OBFLink").val();
+
+    if (isDocument === "document") {
+      var downloadUrl = selectedTab; 
+      var docId = selectedOption.data('id');
+      console.log("Downloading:", downloadUrl);
+
+      isgItinerary.DownloadLink(downloadUrl, docId);
+      return; 
+    }
+
+
+    if (selectedTab == "CoverLetter" || selectedTab == "Introduction")
+      isgItinerary.ReplacedViewContent('CoverLetter', ItineraryNo)
+    else if (selectedTab == "Specialists")
+      isgItinerary.ReplacedViewContent('Specialists', ItineraryNo)
+    //else if (selectedTab == "Cost")
+    //  isgItinerary.ReplacedViewContent('Cost', ItineraryNo)
+    else if (selectedTab == "Cost")
+      isgItinerary.ReplacedViewContent('Cost', ItineraryNo)
+    else if (selectedTab == "Flight")
+      isgItinerary.ReplacedViewContent('Flight', ItineraryNo)
+    else if (selectedTab == "Accommodation")
+      isgItinerary.ReplacedViewContent('Accommodation', ItineraryNo)
+    else if (selectedTab == "TourLeader")
+      isgItinerary.ReplacedViewContent('TourLeader', ItineraryNo)
+    else if (selectedTab == "Notes")
+      isgItinerary.ReplacedViewContent('Notes', ItineraryNo)
+    else if (selectedTab == "Map")
+      isgItinerary.ReplacedViewContent('Map', ItineraryNo)
+    else if (selectedTab == "TourHighLights")
+      isgItinerary.ReplacedViewContent('TourHighLights', ItineraryNo)
+    else if (selectedTab == "Itinerary")
+      isgItinerary.ReplacedViewContent('Itinerary', ItineraryNo)
+    else if (selectedTab == "Document")
+      isgItinerary.ReplacedViewContent('Document', ItineraryNo)
+
+    else if (selectedTab == "WhySteppes") {
+      window.location.href = whySteppesLink;
+    }
+    else if (selectedTab == "VISAInformation") {
+      window.location.href = visaData;
+    }
+    else if (selectedTab == "TravelAppLink") {
+      window.location.href = travelAppLink;
+    }
+    else if (selectedTab == "OnlinePayment") {
+      window.location.href = OnlinePaymentLink;
+    }
+    else if (selectedTab == "BookingForm") {
+      window.location.href = OBFLink;
+    }
+    else if (selectedTab == "Invoice") {
+      isgItinerary.DownloadLink(invoiceDownloadLink, 'invoice')
+    }
+    else if (selectedTab == "ATOLCertificate") {
+      isgItinerary.DownloadLink(atolDownloadLink, 'atol')
+    }
+    else if (selectedTab == "PostTravelQuestionnaire") {
+      window.location.href = PTQLink;
+    }
+    else if (selectedTab == "DownloadAndPrintItin") {
+      isgItinerary.SavePageBreakXmlAndDwnldItinInMobileView(DecryptedItinNo, false, '', '', '', '', '', true)
+    }
+    else if (Documents == "Documents") {
+      window.location.href = selectedTab;
+    }
+    else
+      isgItinerary.ReplacedViewContent(selectedTab, ItineraryNo)
+  }
+
+  this.RedirectToAccommodation = function (itineraryNo, hotelCode) {
+    isgItinerary.ReplacedViewContentOnMenuSelect('Accommodations', itineraryNo, RedirectToAccommodationFunc);
+    function RedirectToAccommodationFunc() {
+      setTimeout(function () {
+        $('html,body').animate({ scrollTop: $("#accomTab_" + hotelCode).offset().top - 125 }, 'slow');
+      }, 1000);
+    }
+  }
+
+  this.QuotePopup = function (itineraryDetails) {
+    var preparedOn = '';
+    var preparedFor = '';
+    if (itineraryDetails != undefined) {
+      preparedOn = myAccountCommon.ParseJsonDateToDateTime(JSON.parse(itineraryDetails).PreparedOn);
+      preparedFor = JSON.parse(itineraryDetails).PreparedFor;
+      $.ajax({
+        cache: false,
+        async: false,
+        url: hostURL + "Quotes/GetDayWiseItinerary",
+        data: { itineraryNo: JSON.parse(itineraryDetails).ItineraryNumber },
+        beforeSend: function () {
+          $("#quoteModal").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+        },
+        success: function (resultJson) {
+          $('#quoteModal').html('');
+          $('#quoteModal').html(resultJson);
+          if (preparedOn != null && preparedOn != '') {
+            $('#quoteModal .quote_infotxt1').html('prepared on ' + myAccountCommon.AppendZero(preparedOn.getDate()) + "." + myAccountCommon.AppendZero((preparedOn.getMonth() + 1)) + "." + preparedOn.getFullYear());
+          }
+          else {
+            $('#quoteModal .quote_infotxt1').html('');
+          }
+          if (preparedFor != null && preparedFor != '') {
+            $('#quoteModal .quote_infotxt2').html('For: ' + preparedFor);
+          } else {
+            $('#quoteModal .quote_infotxt2').html('');
+          }
+        },
+        error: function (msg) {
+          $("#quoteModal").html(MyAccountConstants.GenericErrorMsg);
+        }
+      });
+    }
+    else {
+      $("#quoteModal").html(MyAccountConstants.NoDetailsFound);
+    }
+  }
+
+  this.UploadDoc = function (/*ItineraryNo, ItineraryNo*/) {
+    $("#btnupload").attr("disabled", true);
+    $("#uploadLoader").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>').show();
+    //$("#uploadForm").submit();
+    //if (ItineraryNo != undefined || BookingNo != undefined) {
+
+    //  var fileInput = document.getElementById('myfile');
+    //  //var file = fileInput.files;
+    //  $.ajax({
+    //    cache: false,
+    //    async: false,
+    //    type: "post",
+    //    url: hostURL + "Common/SaveDocument",
+    //    data: {
+    //      itinearyNo: ItineraryNo,
+    //      BkgNo: BookingNo,
+    //      docType: $("#doctype").val(),
+    //      docSubType: $("#docsubtype").val(),
+    //      notes: $("#txtNotes").val(),
+    //      docOrgPath: $("#myfile").val(),
+    //      docName: fileInput.files[0].name
+    //    },
+    //    beforeSend: function () {
+    //      $("#uploadLoader").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>').show();
+    //    },
+    //    success: function (resultJson) {
+    //      $('#uploadLoader').html('');
+    //      $('#uploadLoader').html("Uploaded Document successfully").show();
+    //    },
+    //    error: function (msg) {
+    //      $("#uploadLoader").html(MyAccountConstants.GenericErrorMsg);
+    //    }
+    //  });
+    //}
+    //else {
+    //  $("#uploadLoader").html(MyAccountConstants.NoDetailsFound);
+    //}
+  }
+
+  this.UploadDocument = function () {
+    var fileupload = $('#fileupload')[0].files[0];
+    var fileuploadName = $('#fileupload')[0].files[0].name;
+    var formData = new FormData();
+    formData.append('file', $('#fileupload')[0].files[0]);
+
+    var input = document.getElementById('fileupload');
+    console.log(input.files);
+    $.ajax({
+      cache: false,
+      async: false,
+      type: "post",
+      url: hostURL + "Common/UploadDocument",
+      data: {
+        file: fileuploadName
+      },
+      beforeSend: function () {
+        $("#uploadLoader").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>').show();
+      },
+      success: function (resultJson) {
+        $('#uploadLoader').html('');
+        $('#uploadLoader').html("Uploaded Document successfully").show();
+      },
+      error: function (msg) {
+        $("#uploadLoader").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+
+  this.UploadDocumentValidation = function (event) {
+    if ($("#hdndocumentType").val() == undefined || myAccountCommon.isNullOrEmpty($("#hdndocumentType").val())) {
+      $("#validatemsg").show();
+      $("#validatemsg").html("Please select document type");
+      event.preventDefault();
+      return false;
+    }
+
+    if ($("#hdnnotes").val() == undefined || myAccountCommon.isNullOrEmpty($("#hdnnotes").val())) {
+      $("#validatemsg").show();
+      $("#validatemsg").html("Please enter notes");
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  this.DownloadLink = function (link, id) {
+    var iframeID = id + "downloadFrame";
+    var loadHtml = hostURL + 'images/ajax-loader.gif';
+    $('#' + iframeID).show();
+    $('#' + iframeID).height('0');
+    $('#' + iframeID).css('opacity', '0')
+    //$('#' + iframeID).attr('src', loadHtml);
+    $('#' + iframeID).attr('src', link);
+    //$('#' + iframeID).hide();
+    setTimeout(function () {
+      //var htmlContent = $('#' + iframeID).contents().find('html');
+      //$('#' + iframeID).contents().find('html').val()
+      $('#' + iframeID).hide();
+      $('#' + iframeID).attr('src', '');
+    }, 2000);
+    //$('#' + iframeID).on("load", function () {
+    //  alert('load over');
+    //});
+  }
+
+  this.OpenContactTravelExpert = function (travelID) {
+    var itineraryName = $('#ItinearyName p').html();
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "Common/OpenContactTravelExpert",
+      data: {
+        itineraryName: itineraryName,
+        travelID: travelID
+      },
+      beforeSend: function () {
+        $("#ContactTravelExpert").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+      },
+      success: function (resultJson) {
+        $('#ContactTravelExpert').html('');
+        $('#ContactTravelExpert').html(resultJson);
+      },
+      error: function (msg) {
+        $("#ContactTravelExpert").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+
+  this.SendEmailToTravelExpert = function () {
+    if (CheckValidEmail() && CheckTravelexpertSubject() && CheckTravelExpertContent()) {
+      $("#ContactExpertPreloader").show();
+      try {
+        $.ajax({
+          cache: false,
+          type: "post",
+          url: hostURL + "Common/SendEmailTravelExpert",
+          data: {
+            emailSubject: $('#SubjectName').val(),
+            emailTo: $('#ClientEmailaddress').html(),
+            emailContent: $('#EmailMailContent').val(),
+            sendCopy: $('#chkCopyEmailToMe').prop("checked")
+          },
+          success: function (result) {
+            $("#ContactExpertPreloader").hide();
+            if (result.Status) {
+              $("#msgDisplaySendMailSuccess").text(MyAccountConstants.ContactTravelExpertSuccessMsg);
+              $("#msgDisplaySendMailSuccess").show();
+              setTimeout(function () {
+                $("#msgDisplaySendMailSuccess").hide(); $("#msgDisplaySendMailSuccess").text('');
+              }, 3000);
+            }
+            else {
+              $("#msgDisplaySendMailError").text(MyAccountConstants.ContactTravelExpertErrorMsg);
+              $("#msgDisplaySendMailError").show();
+              setTimeout(function () {
+                $("#msgDisplaySendMailError").hide();
+              }, 3000);
+            }
+          },
+          error: function (msg) {
+            if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+              if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+                myAccountCommon.RedirectToUrl('', 'Account/Error');
+              }
+              else {
+                $("#ContactExpertPreloader").hide();
+                console.log(msg);
+                $("#msgDisplaySendMailError").text(MyAccountConstants.ContactTravelExpertErrorMsg);
+                $("#msgDisplaySendMailError").show();
+                setTimeout(function () {
+                  $("#msgDisplaySendMailError").hide();
+                  $("#msgDisplaySendMailError").text('');
+                }, 3000);
+              }
+            }
+          }
+        });
+      }
+      catch (ex) {
+        $("#ContactExpertPreloader").hide();
+        console.log(ex);
+      }
+    }
+  }
+
+  function CheckValidEmail() {
+    var emailList = [];
+    if (!myAccountCommon.isNullOrEmpty($('#ClientEmailaddress').html())) {
+      emailList = $("#ClientEmailaddress").html().split(';');
+      if (emailList.length > 0) {
+        for (var i = 0; i < emailList.length; i++) {
+          if (!myAccountCommon.IsEmail(emailList[i])) {
+            $("#msgDisplaySendMailError").html(MyAccountConstants.ValidEmailId).show();
+            setTimeout(function () {
+              $("#msgDisplaySendMailError").hide();
+            }, 3000);
+            return false;
+            break;
+          }
+        }
+      }
+    }
+    else {
+      $("#msgDisplaySendMailError").html(MyAccountConstants.EnterEmailId).show();
+      setTimeout(function () {
+        $("#msgDisplaySendMailError").hide();
+      }, 3000);
+      return false;
+    }
+    return true;
+  }
+
+  function CheckTravelexpertSubject() {
+    if (myAccountCommon.isNullOrEmpty($('#SubjectName').val())) {
+      $("#msgDisplaySendMailError").html(MyAccountConstants.ContactTravelExpertSubject).show();
+      setTimeout(function () {
+        $("#msgDisplaySendMailError").hide();
+      }, 3000);
+      return false;
+    }
+    return true;
+  }
+
+  function CheckTravelExpertContent() {
+    if (myAccountCommon.isNullOrEmpty($('#EmailMailContent').val())) {
+      $("#msgDisplaySendMailError").html(MyAccountConstants.ContactTravelExpertMailContent).show();
+      setTimeout(function () {
+        $("#msgDisplaySendMailError").hide();
+      }, 3000);
+      return false;
+    }
+    return true;
+  }
+
+  this.DownloadItinDoc = function (seqno) {
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/Download",
+        data: {
+          seqNo: seqno
+        },
+        success: function (result) {
+        },
+        error: function (msg) {
+        }
+      });
+    }
+    catch (ex) {
+      console.log(ex);
+    }
+  }
+
+  this.DeleteItinDoc = function (seqno, docEvent, encyptItinNo) {
+    isDelete = confirm("Do you want to delete?");
+    if (isDelete) {
+      $("#CostRequest_preloader").show();
+      try {
+        $.ajax({
+          cache: false,
+          type: "post",
+          url: hostURL + "Common/DeleteItinDoc",
+          data: {
+            seqNo: seqno
+          },
+          success: function (result) {
+
+            //location.reload();
+            $("#resultId").show();
+            $("#resultId").html("Document deleted successfully");
+            me.ReplacedViewContent('Document', encyptItinNo);
+            $("#CostRequest_preloader").hide();
+          },
+          error: function (msg) {
+          }
+        });
+      }
+      catch (ex) {
+        console.log(ex);
+      }
+    }
+  }
+
+  this.DownloadItinPDF = function (para, BkgNo, branchCode, compressionLevel) {
+    try {
+      console.log('pdf print start');
+      //$('.pdfLoaderMsg').show();
+      $('#popupLoader').show();
+      var customWindow = window.open("");
+      var publishVersion = parseInt($("#PublishVersion").val()) || 0;
+      customWindow.document.write('<h2>' + MyAccountConstants.ItineraryPDFGenerate + '</h2>');
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/pdfConvert",
+        data: {
+          itinearyNo: para,
+          accountName: "",
+          branchCode: branchCode,
+          compressionLevel: compressionLevel,
+          publishVersion: publishVersion,
+        },
+        success: function (result) {
+          //$('.pdfLoaderMsg').hide();
+          $('#popupLoader').hide();
+          if (result != undefined) {
+            console.log(result);
+            //window.open(result);
+            customWindow.location = result;
+          }
+        },
+        error: function (msg) {
+          //$('.pdfLoaderMsg').hide();
+          $('#popupLoader').hide();
+          console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      //$('.pdfLoaderMsg').hide();
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.RedirectToPdfFormatV1 = function (itineraryNo) {
+    $("#itineraryNoPrint").val(itineraryNo);
+    $("#GeneratePDFConfirmation").modal("show");
+  }
+
+  this.RedirectToPdfFormatV1ForA4 = function (itineraryNo, isConsultant) {
+    $("#itineraryNoPrint").val(itineraryNo);
+    var CompanyCode = $('#hdnCompanyCode').val();
+    isgItinerary.OpenGeneratePDFPage('A4', CompanyCode, '', '', isConsultant);
+    //$("#GeneratePDFConfirmation").modal("show");
+  }
+
+  this.OpenGeneratePDFPage = function (printSize, companyCode, printOldItinInd, itineraryNoPrint, isConsultant, isPDFWithImage) {
+    var url = '';
+    var itineraryNo = $("#itineraryNoPrint").val();
+    var publishVersion = parseInt($("#PublishVersion").val()) || 0;
+    if (itineraryNoPrint) {
+      itineraryNo = itineraryNoPrint;
+    }
+    var printOldItin = false;
+    if (printOldItinInd) {
+      printOldItin = printOldItinInd
+    }
+
+    var showOptimisedImgInd = false;
+    if (isConsultant) {
+      showOptimisedImgInd = isConsultant
+    }
+
+    if ((companyCode.toString().toUpperCase() == "RSUS" || companyCode.toString().toUpperCase() == "ITUK" || companyCode.toString().toUpperCase() == "WFUK" || companyCode.toString().toUpperCase() == "ECUK")
+      && isPDFWithImage == undefined) {
+      isPDFWithImage = true;
+    }
+
+    if (!myAccountCommon.isNullOrEmpty(companyCode) && companyCode.toString().toUpperCase() == "STUK") {
+      url = hostURL + "common/pdfFormatV1?itinearyNo=" + itineraryNo + "::" + printSize + "&PrintOldFormat=" + printOldItin;
+    }
+    else if (!myAccountCommon.isNullOrEmpty(companyCode) && companyCode.toString().toUpperCase() == "HAUK") {
+      url = hostURL + "common/pdfFormatV1_HA?itinearyNo=" + itineraryNo + "::" + printSize + "&PrintOldFormat=" + printOldItin;
+    }
+    else if (!myAccountCommon.isNullOrEmpty(companyCode) && companyCode.toString().toUpperCase() == "LTUK") {
+      url = hostURL + "common/pdfFormatV1?itinearyNo=" + itineraryNo + "::" + printSize;
+    }
+    else if (!myAccountCommon.isNullOrEmpty(companyCode) && companyCode.toString().toUpperCase() == "BTUK") {
+      url = hostURL + "common/pdfFormatV1?itinearyNo=" + itineraryNo + "::A5:" + showOptimisedImgInd + "&PrintOldFormat=" + printOldItin;
+    }
+    else if (!myAccountCommon.isNullOrEmpty(companyCode) && (companyCode.toString().toUpperCase() == "FCUK"
+      || companyCode.toString().toUpperCase() == "CLUK") || companyCode.toString().toUpperCase() == "RSUS"
+      || companyCode.toString().toUpperCase() == "ITUK" || companyCode.toString().toUpperCase() == "ASUK"
+      || companyCode.toString().toUpperCase() == "RMSA" || companyCode.toString().toUpperCase() == "SQUK"
+      || companyCode.toString().toUpperCase() == "WFUK" || companyCode.toString().toUpperCase() == "CEUS" || companyCode.toString().toUpperCase() == "ECUK") {
+      url = hostURL + "common/pdfFormatV1?itinearyNo=" + itineraryNo + "::" + printSize + ":" + showOptimisedImgInd + "&PrintOldFormat=" + printOldItin + "&PrintWithImg=" + isPDFWithImage;
+    }
+    else {
+      url = hostURL + "common/pdfFormatV1?itinearyNo=" + itineraryNo + "::" + printSize + ":" + showOptimisedImgInd + "&PrintOldFormat=" + printOldItin + "&publishVersion=" + publishVersion;
+    }
+    window.open(url, '_blank');
+    $("#GeneratePDFConfirmation").modal("hide");
+  }
+
+  this.SavePageBreakXmlAndDwnldGrpItin = function (genericTourCode, DepDate, actualItinNo) {
+    var customWindow = window.open("");
+    var PagebreakDivIdList = [];
+    var RemoveImgDivIdList = [];
+    $('input[type=checkbox]:checked').each(function () {
+      PagebreakDivIdList.push($(this).attr('data-val'));
+    });
+    $('span[id^="Img_"][class="img_shwblk01 red"]').each(function () {
+      RemoveImgDivIdList.push($(this).attr('id'));
+    });
+    try {
+      console.log('pdf print start');
+      customWindow.document.write('<h2>We\'re just preparing your itinerary….</h2>');
+      $.ajax({
+        cache: false,
+        url: hostURL + "Common/mydhruvtourpdfprocess",
+        data: {
+          Id: genericTourCode + "|" + DepDate,
+          ItineraryNo: actualItinNo
+        },
+        success: function (result) {
+          if (result != 'undefined' && result.openPdfPath != 'undefined') {
+            console.log(result.openPdfPath);
+            customWindow.location = result.openPdfPath;
+          }
+        },
+        error: function (msg) {
+          console.log('pdf print start : error');
+          $("p").html("Something went wrong!! please try again.");
+          $("img").hide();
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      console.log('pdf print start :catch : error');
+      $("p").html("Something went wrong please try again.");
+      $("img").hide();
+      console.log(ex);
+    }
+  }
+
+  this.DownloadHolidayIdeaPDF = function (itineraryNo) {
+    try {
+      console.log('pdf print start');
+      $('#popupLoader').show();
+      var customWindow = window.open("");
+      customWindow.document.write('<h2>We\'re just preparing your itinerary….</h2>');
+
+      $.ajax({
+        cache: false,
+        url: hostURL + "Common/pdfHoliday",
+        data: {
+          itineraryNo: itineraryNo
+        },
+        success: function (result) {
+          $('#popupLoader').hide();
+          if (result) {
+            console.log("PDF URL:", result);
+            customWindow.location = result; 
+          }
+        },
+        error: function (msg) {
+          $('#popupLoader').hide();
+          console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    } catch (ex) {
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.SavePageBreakXmlAndDwnldItin = function (itineraryNo, PrintA5Ind, isUpload, BkgNo, PrintOldFormat, branchCode, isConsultant, IsPDFWithImage, IsPDFToWord, publishversion,UserCode) {
+    var ShowAgentPrice = $('#hdnShowAgentPrice').val();
+    var PagebreakDivIdList = [];
+    var RemoveImgDivIdList = [];
+    $('input[type=checkbox]:checked').each(function () {
+      PagebreakDivIdList.push($(this).attr('data-val'));
+    });
+    $('span[id^="Img_"][class="img_shwblk01 red"]').each(function () {
+      RemoveImgDivIdList.push($(this).attr('id'));
+    });
+    var noofNotesPage = !(typeof $('input[name=noofpage]:checked').val() == "undefined") ? $('input[name=noofpage]:checked').val() : "0";
+    try {
+      console.log('pdf print start');
+      $('#popupLoader').show();
+      var customWindow = window.open("");
+      customWindow.document.write('<h2>We\'re just preparing your itinerary….</h2>');
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/pdfV1Convert",
+        data: {
+          itinearyNo: itineraryNo,
+          pageBreakDivIdList: JSON.stringify(PagebreakDivIdList),
+          removeImgDivIdList: JSON.stringify(RemoveImgDivIdList),
+          NoofNotePages: noofNotesPage,
+          BkgNo: $("#hiddenBkgNo").val(),
+          QuoteNo: $("#hiddenQuoteNo").val(),
+          AccountNo: $("#hiddenAccountCode").val(),
+          isupload: ($("#isUpload").val() || "false"),
+          PrintA5Ind: PrintA5Ind,
+          PrintOldFormat: PrintOldFormat,
+          branchCode: branchCode,
+          showOptimisedImg: isConsultant,
+          showAgentPrice: ShowAgentPrice,
+          isPDFWithImage: IsPDFWithImage,
+          isPDFToWord: IsPDFToWord,
+          publishVersion: parseInt(publishversion) || 0,
+          UserCode: UserCode || ""
+        },
+        success: function (result) {
+          $('#popupLoader').hide();
+          if (result != undefined) {
+            console.log(result);
+            customWindow.location = result;
+          }
+
+            if (IsPDFToWord && customWindow) {
+              setTimeout(function () {
+                try {
+                  customWindow.close();
+                } catch (e) {
+                  console.log("Unable to close window:", e);
+                }
+              }, 5000); 
+            }          
+        },
+        error: function (msg) {
+          $('#popupLoader').hide();
+          console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.SavePageBreakXmlAndDwnldItinPlaywright = function (itineraryNo, PrintA5Ind, isUpload, BkgNo, PrintOldFormat, branchCode, isConsultant, IsPDFWithImage, IsPDFToWord) {
+    var ShowAgentPrice = $('#hdnShowAgentPrice').val();
+    var PagebreakDivIdList = [];
+    var RemoveImgDivIdList = [];
+    $('input[type=checkbox]:checked').each(function () {
+      PagebreakDivIdList.push($(this).attr('data-val'));
+    });
+    $('span[id^="Img_"][class="img_shwblk01 red"]').each(function () {
+      RemoveImgDivIdList.push($(this).attr('id'));
+    });
+    var noofNotesPage = !(typeof $('input[name=noofpage]:checked').val() == "undefined") ? $('input[name=noofpage]:checked').val() : "0";
+    try {
+      console.log('pdf print start');
+      $('#popupLoader').show();
+      var customWindow = window.open("");
+      customWindow.document.write('<h2>We\'re just preparing your itinerary….</h2>');
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/pdfV1Convertplaywright",
+        data: {
+          itinearyNo: itineraryNo,
+          pageBreakDivIdList: JSON.stringify(PagebreakDivIdList),
+          removeImgDivIdList: JSON.stringify(RemoveImgDivIdList),
+          NoofNotePages: noofNotesPage,
+          BkgNo: $("#hiddenBkgNo").val(),
+          QuoteNo: $("#hiddenQuoteNo").val(),
+          AccountNo: $("#hiddenAccountCode").val(),
+          isupload: ($("#isUpload").val() || "false"),
+          PrintA5Ind: PrintA5Ind,
+          PrintOldFormat: PrintOldFormat,
+          branchCode: branchCode,
+          showOptimisedImg: isConsultant,
+          showAgentPrice: ShowAgentPrice,
+          isPDFWithImage: IsPDFWithImage,
+          isPDFToWord: IsPDFToWord
+        },
+        success: function (result) {
+          $('#popupLoader').hide();
+          if (result != undefined) {
+            console.log(result);
+            customWindow.location = result;
+          }
+
+            if (IsPDFToWord && customWindow) {
+              setTimeout(function () {
+                try {
+                  customWindow.close();
+                } catch (e) {
+                  console.log("Unable to close window:", e);
+                }
+              }, 5000); 
+            }          
+        },
+        error: function (msg) {
+          $('#popupLoader').hide();
+          console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.SaveItineraryDetailsToLocalDB = function (view, itineraryNo) {
+    var db = new PouchDB('myAppDb');
+    var ItineraryDetail = null;
+    var itineraryNoVersion = itineraryNo + "_" + $("#PublishVersion").val();
+    db.get(itineraryNoVersion).then(function (ItineraryDetail) {
+      me.SaveAllObjectsToLocalDb(db, ItineraryDetail, itineraryNo, false);
+    }).catch(function (err) {
+      ItineraryDetail = {
+        _id: itineraryNoVersion,
+        Version: $("#PublishVersion").val(),
+        CoverLetter: null,
+        Itinerary: null,
+        Accommodation: null,
+        Notes: null,
+        Specialists: null,
+        Cost: null,
+        Flight: null,
+        TourLeader: null,
+        QuickItinerary: null,
+        Map: null,
+        TourHighLights: null
+      }
+      me.SaveAllObjectsToLocalDb(db, ItineraryDetail, itineraryNo, true);
+    });
+
+    this.SaveAllObjectsToLocalDb = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+      me.PushItineraryToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata);
+    }
+  }
+
+  this.PushItineraryToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "Itinerary/ItineraryViewContent",
+      data: { ItineraryNo: itineraryNo, publishVersion: parseInt($("#PublishVersion").val()) || 0 },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Itinerary) {
+          ItineraryDetail.Itinerary = resultJson;
+          pushalldata = true;
+        }
+        me.PushAccomodationToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushAccomodationToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushAccomodationToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/AccommodationViewContent",
+      data: { ItineraryNo: itineraryNo, publishVersion: parseInt($("#PublishVersion").val()) || 0 },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Accommodation) {
+          ItineraryDetail.Accommodation = resultJson;
+          pushalldata = true;
+        }
+        me.PushCoverLetterToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushCoverLetterToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushCoverLetterToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/CoverLetterViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.CoverLetter) {
+          ItineraryDetail.CoverLetter = resultJson;
+          pushalldata = true;
+        }
+        me.PushNotesToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushNotesToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushNotesToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/NotesViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Notes) {
+          ItineraryDetail.Notes = resultJson;
+          pushalldata = true;
+        }
+        me.PushSpecialistsToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushSpecialistsToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushSpecialistsToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/SpecialistsViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Specialists) {
+          ItineraryDetail.Specialists = resultJson;
+          pushalldata = true;
+        }
+        me.PushCostToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        //me.PushCostToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushCostToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/CostViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Cost) {
+          ItineraryDetail.Cost = resultJson;
+          pushalldata = true;
+        }
+        me.PushFlightToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        //me.PushFlightToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushFlightToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/FlightViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Flight) {
+          ItineraryDetail.Flight = resultJson;
+          pushalldata = true;
+        }
+        me.PushTourLeaderToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        //me.PushTourLeaderToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushTourLeaderToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/TourLeaderViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.TourLeader) {
+          ItineraryDetail.TourLeader = resultJson;
+          pushalldata = true;
+        }
+        me.PushQuickItineraryToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        //me.PushQuickItineraryToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushQuickItineraryToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/QuickItineraryViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.QuickItinerary) {
+          ItineraryDetail.QuickItinerary = resultJson;
+          pushalldata = true;
+        }
+        me.PushMapToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushMapToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushMapToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/MapViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.Map) {
+          ItineraryDetail.Map = resultJson;
+          pushalldata = true;
+        }
+        me.PushTourHighLightToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      },
+      error: function (msg) {
+        // me.PushTourHighLightToLocalObject(db, ItineraryDetail, itineraryNo, pushalldata)
+      }
+    });
+  }
+
+  this.PushTourHighLightToLocalObject = function (db, ItineraryDetail, itineraryNo, pushalldata) {
+    $.ajax({
+      cache: false,
+      async: true,
+      url: hostURL + "Itinerary/TourHighLightsViewContent",
+      data: { ItineraryNo: itineraryNo },
+      success: function (resultJson) {
+        if (resultJson != undefined && resultJson != ItineraryDetail.TourHighLights) {
+          ItineraryDetail.TourHighLights = resultJson;
+          pushalldata = true;
+        }
+        if (pushalldata) {
+          db.put(ItineraryDetail);
+        }
+      },
+      error: function (msg) {
+        //if (pushalldata) {
+        //  db.put(ItineraryDetail);
+        //}
+      }
+    });
+  }
+
+  this.GetPreDepartureCountryText = function (textType, itinNo) {
+    var counCode = $($(".cntry_info .active")[0]).attr("data-countrycode");
+    if (counCode) {
+      $('html,body').animate({ scrollTop: $("#" + counCode + " #" + textType).offset().top - 150 }, 'slow');
+    }
+    else {
+      isgItinerary.ChangeImpInfoMenu('CountryInfoMenu', itinNo, GetPreDepartureCountryTextFunction);
+      function GetPreDepartureCountryTextFunction() {
+        counCode = $($(".cntry_info ul.nav-tabs li")[0]).attr("data-countrycode");
+        if (counCode) {
+          $('html,body').animate({ scrollTop: $("#" + counCode + " #" + textType).offset().top - 150 }, 'slow');
+        }
+      }
+    }
+  }
+
+  this.OpenAccomTabs = function (element, id, hotelCode, itineraryNo) {
+    $(element).toggleClass('active');
+    if ($('#accomtabs_' + id).html().trim().length > 0) {
+      $('#MoreDetails_' + id).toggle(500);
+    }
+    else {
+      $('#accomtabs_' + id).html('<div class="loader_icon" style="background-image: url(' + hostURL + 'Content/BR/Images/UK/loader.svg); width: 100%; height: 200px; background-repeat: no-repeat; background-position: center;"></div>').show();
+      $('html,body').animate({ scrollTop: $('#accomtabs_' + id).offset().top - 150 }, 'slow');
+      $.ajax({
+        cache: false,
+        async: true,
+        url: hostURL + "Itinerary/GetAccomodationTabDetails",
+        data: {
+          ItineraryNo: itineraryNo,
+          HotelCode: hotelCode,
+          Id: id
+        },
+        success: function (resultJson) {
+          if (resultJson != undefined && resultJson != null) {
+            $('#accomtabs_' + id).html(resultJson);
+            //$('#MoreDetails_' + id).show();
+            var selectedRoomType = $('#hdnHotelRmTypeDesc_' + id).val();
+            var selectedRoomTypeCode = "";
+
+            if ($("#roomType_" + id).length > 0) {
+              $("#roomType_" + id + " option").filter(function () {
+                if (this.text == selectedRoomType) {
+                  selectedRoomTypeCode = this.value;
+                }
+              });
+            }
+            if (!myAccountCommon.isNullOrEmpty(selectedRoomTypeCode)) {
+              $("#roomType_" + id).val(selectedRoomTypeCode).trigger("onchange");
+            }
+            $('#MoreDetails_' + id).toggle(500);
+            isgItinerary.initFlexSliders(id);
+          }
+        },
+        error: function (msg) {
+          //$('#accomtabs_' + id).html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>').hide();
+          console.log(msg);
+        }
+      })
+    }
+  }
+
+  this.initFlexSliders = function (id) {
+    $('.accd_slides_' + id).flexslider({
+      animation: "slide",
+      touch: true,
+      directionNav: true,
+      isFirefox: true,
+      prevText: "",
+      nextText: "",
+      slideshowSpeed: 7000,
+      animationSpeed: 2000,
+      itemWidth: 960,
+      init: function (slider) {
+        // lazy load
+        //$("img.lazy").slice(0, 2).each(function () {
+        //$(slider).find(".accom-slider-li.flex-active-slide").width(960);
+        $(slider).find(".accom-slider-li.flex-active-slide").next().find("img.lazy").slice(0, 2).each(function () {
+          var src = $(this).attr("data-src");
+          //$(this).parent().width(960);
+          if (src) {
+            $(this).attr("src", src).removeAttr("data-src").removeClass("lazy");
+          }
+        });
+      },
+      start: function (slider) {
+        if (slider.itemW != 960) {
+          $('.accd_slides_' + id).data('flexslider').resize();
+        }
+      },
+      after: function (slider) {
+        if (!slider.playing) {
+          slider.play();
+        }
+      },
+      before: function (slider) {
+        // lazy load
+        if (slider.itemW != 960) {
+          $('.accd_slides_' + id).data('flexslider').resize();
+        }
+        //$("img.lazy").slice(0, 1).each(function () {
+        $(slider).find(".accom-slider-li.flex-active-slide").next().find("img.lazy").slice(0, 1).each(function () {
+          //if (slider.itemW != 960) {
+          //  $(this).parent().width(960);
+          //}
+          var src = $(this).attr("data-src");
+          if (src) {
+            $(this).attr("src", src).removeAttr("data-src").removeClass("lazy");
+          }
+        });
+      }
+    });
+
+    //$('.accd_slides_' + id).data('flexslider').resize();
+
+  };
+
+  this.loadCompDetails = function (ElementType, id, element, itineraryNo) {
+    var CpntType = $("#CpntType").val();
+    var CpntCode = id;
+    var ElementCode = $('#' + element.id + ' option:selected').val()
+    var classname = '';
+    //accd_room_txt room_01_86_5485
+
+    if (ElementType.toUpperCase() == "ROOMTYPE") {
+      var Id = 'accd_room_txt room_01 ' + CpntCode + ' ' + ElementCode
+      classname = '.accd_room_txt';
+    }
+    if (ElementType.toUpperCase() == "RESTAURANT") {
+      var Id = 'restnt_txt rest_01 ' + CpntCode + ' ' + ElementCode
+      classname = '.restnt_txt';
+    }
+    if (ElementType.toUpperCase() == "ACTIVITY") {
+      var Id = 'actvty_txt actvt_01 ' + CpntCode + ' ' + ElementCode
+      classname = '.actvty_txt';
+    }
+    $(classname).each(function () {
+      //if ($(this).hasClass(CpntCode) && $(this).hasClass(ElementCode)) {
+      if ($(this).hasClass(CpntCode)) {
+        if ($(this).hasClass(ElementCode)) {
+          $(this).show();
+        }
+        else {
+          $(this).hide()
+        }
+      }
+      else {
+        // $(this).hide()
+      }
+    });
+  }
+
+  this.SavePageBreakXml = function (itineraryNo, PrintA5Ind, isUpload, BkgNo, PrintOldFormat, branchCode) {
+    var PagebreakDivIdList = [];
+    var RemoveImgDivIdList = [];
+    $('input[type=checkbox]:checked').each(function () {
+      PagebreakDivIdList.push($(this).attr('data-val'));
+    });
+    $('span[id^="Img_"][class="img_shwblk01 red"]').each(function () {
+      RemoveImgDivIdList.push($(this).attr('id'));
+    });
+    var noofNotesPage = !(typeof $('input[name=noofpage]:checked').val() == "undefined") ? $('input[name=noofpage]:checked').val() : "0";
+    try {
+      $("#btnSavexml").attr("disabled", true)
+      $('#popupLoader').show();
+      $("#xmlSavedSuccess").hide();
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/SavePageBreakXml",
+        data: {
+          itinearyNo: itineraryNo,
+          pageBreakDivIdList: JSON.stringify(PagebreakDivIdList),
+          removeImgDivIdList: JSON.stringify(RemoveImgDivIdList),
+          NoofNotePages: noofNotesPage,
+          //BkgNo: $("#hiddenBkgNo").val(),
+          //QuoteNo: $("#hiddenQuoteNo").val(),
+          //AccountNo: $("#hiddenAccountCode").val(),
+          //isupload: ($("#isUpload").val() || "false"),
+          PrintA5Ind: PrintA5Ind,
+          PrintOldFormat: PrintOldFormat,
+          //branchCode: branchCode
+        },
+        success: function (result) {
+          $('#popupLoader').hide();
+          $("#xmlSavedSuccess").text("Saved successfully").show();
+          $("#btnSavexml").attr("disabled", false)
+          if (result != undefined) {
+            console.log(result);
+          }
+        },
+        error: function (msg) {
+          $("#xmlSavedSuccess").hide();
+          $("#btnSavexml").attr("disabled", false)
+          $('#popupLoader').hide();
+          //console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      $('#popupLoader').hide();
+      // console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.GenerateOnlinePaymentLinkExternally = function (BkgNo, AccountCode) {
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/GenerateOnlinePaymentLinkExternally",
+        data: {
+          bkgNo: BkgNo,
+          AcctCode: AccountCode
+        },
+        success: function (result) {
+          window.open(result, '_blank');
+        },
+        error: function (msg) {
+        }
+      });
+    }
+    catch (ex) {
+      console.log(ex);
+    }
+  }
+
+  this.ExportDocument = function (seqNo, documentPath) {
+    if (!myAccountCommon.isNullOrEmpty(seqNo)) {
+      var url = hostURL + "/Common/ExportDocument?seqNo=" + seqNo;
+      window.open(url, "_blank");
+    }
+    else {
+      var url = hostURL + "/Common/ExportDocument?documentPath=" + documentPath;
+      window.open(url, "_blank");
+    }
+  }
+
+  this.changeNotesval = function () {
+    var text = $("#txtNotes").val();
+    $("#hdnnotes").val(text);
+    $("#hdndocumentSubType").val(document.getElementById("docsubtype").value);
+  }
+
+  this.DownloadtourPDF = function (itineraryNo) {
+    try {
+      window.location = hostURL + "Common/PreviewFinalDoc?itineraryNo=" + itineraryNo;
+    }
+    catch (ex) {
+      console.log('pdf print start :catch : error');
+      $("p").html("Something went wrong please try again.");
+      $("img").hide();
+      console.log(ex);
+    }
+  }
+
+  this.GenerateFinalDocPDF = function () {
+    try {
+      var BookingNo = $("#BookingNo").val();
+      var QuoteNo = $("#QuoteNo").val();
+      var ItineraryNo = $("#ItineraryNo").val();
+      var PagebreakDivIdList = [];
+      $('input[type=checkbox]:checked').each(function () {
+        PagebreakDivIdList.push($(this).attr('data-val'));
+      });
+      $('#popupLoader').show();
+      var customWindow = window.open("");
+      customWindow.document.write('<h2>PDF is generating</h2>');
+      $.ajax({
+        cache: false,
+        url: hostURL + "Common/GenerateFinalDocPDF",
+        type: "POST",
+        data: {
+          itinearyNo: ItineraryNo,
+          bookingNo: BookingNo,
+          quoteNo: QuoteNo,
+          pageBreakDivIdList: JSON.stringify(PagebreakDivIdList),
+        },
+        beforeSend: function () {
+          $(".loader").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+        },
+        success: function (resultJson) {
+          $('#popupLoader').hide();
+          if (resultJson != undefined) {
+            console.log(resultJson);
+            customWindow.location = resultJson;
+          }
+        },
+        error: function (msg) {
+          $('#popupLoader').hide();
+        }
+      });
+    }
+    catch (ex) {
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      $("p").html("Something went wrong please try again.");
+      $("img").hide();
+      console.log(ex);
+    }
+  }
+
+  this.OpenUrlPath = function (Url, FileName) {
+    window.open(Url, '_blank');
+  }
+
+  this.SavePageBreakXmlAndDwnldItinInMobileView = function (itineraryNo, PrintA5Ind, isUpload, BkgNo, PrintOldFormat, branchCode, isConsultant, IsPDFWithImage) {
+    var customWindow = window.open("");
+    var ShowAgentPrice = $('#hdnShowAgentPrice').val();
+    var PagebreakDivIdList = [];
+    var RemoveImgDivIdList = [];
+    $('input[type=checkbox]:checked').each(function () {
+      PagebreakDivIdList.push($(this).attr('data-val'));
+    });
+    $('span[id^="Img_"][class="img_shwblk01 red"]').each(function () {
+      RemoveImgDivIdList.push($(this).attr('id'));
+    });
+    var noofNotesPage = !(typeof $('input[name=noofpage]:checked').val() == "undefined") ? $('input[name=noofpage]:checked').val() : "0";
+    try {
+      console.log('pdf print start');
+      $('#popupLoader').show();
+      var publishversion = $("PublishVersion").val();
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Common/pdfV1Convert",
+        data: {
+          itinearyNo: itineraryNo,
+          pageBreakDivIdList: JSON.stringify(PagebreakDivIdList),
+          removeImgDivIdList: JSON.stringify(RemoveImgDivIdList),
+          NoofNotePages: noofNotesPage,
+          BkgNo: $("#hiddenBkgNo").val(),
+          QuoteNo: $("#hiddenQuoteNo").val(),
+          AccountNo: $("#hiddenAccountCode").val(),
+          isupload: ($("#isUpload").val() || "false"),
+          PrintA5Ind: PrintA5Ind,
+          PrintOldFormat: PrintOldFormat,
+          branchCode: branchCode,
+          showOptimisedImg: isConsultant,
+          showAgentPrice: ShowAgentPrice,
+          isPDFWithImage: IsPDFWithImage,
+          publishVersion: publishversion
+        },
+        success: function (result) {
+          $('#popupLoader').hide();
+          if (result != undefined) {
+            console.log(result);
+            customWindow.location = result;
+          }
+        },
+        error: function (msg) {
+          $('#popupLoader').hide();
+          console.log('pdf print start : error');
+          console.log(msg);
+        }
+      });
+    }
+    catch (ex) {
+      $('#popupLoader').hide();
+      console.log('pdf print start :catch : error');
+      console.log(ex);
+    }
+  }
+
+  this.loadAnalytics = function (accountCode, quoteNo, bkgNo, itineraryNo, analyticUrl) {
+    debugger
+    sessionStorage.setItem('account_code', accountCode);
+    sessionStorage.setItem('quote_no', quoteNo);
+    sessionStorage.setItem('booking_no', bkgNo);
+    sessionStorage.setItem('itinerary_no', itineraryNo);
+    window.ANALYTICS_CONFIG = {
+      TRACKING_SERVER: analyticUrl,
+      SITE_ID: 'mydhruv',
+
+      // Maps analytics field name → sessionStorage key used by THIS app
+      SESSION_STORAGE_KEYS: {
+        account_code: 'account_code',
+        booking_no: 'booking_no',
+        quote_no: 'quote_no',
+        itinerary_no: 'itinerary_no',
+      }
+    }
+  }
+
+}

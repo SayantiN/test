@@ -1,0 +1,1386 @@
+﻿var hostURL = MyAccountConstants.HostUrl;
+var instagramFeed;
+$(document).ready(function () {
+  instagramFeed = null;
+  myAccountCommon.ToggleItinDetils();
+
+  $(function () {
+    var hitEvent = 'ontouchstart' in document.documentElement
+      ? 'touchstart'
+      : 'click';
+
+    var $menu = $('#menu'),
+      $html = $('html, body');
+
+    $menu.mmenu();
+    $menu.find('li > a').on(
+      'click',
+      function () {
+        var href = $(this).attr('href');
+
+        //	if the clicked link is linked to an anchor, scroll the page to that anchor 
+        if (href.slice(0, 1) == '#') {
+          $menu.one(
+            'closed.mm',
+            function () {
+              setTimeout(
+                function () {
+                  $html.animate({
+                    scrollTop: $(href).offset().top
+                  });
+                }, 10
+              );
+            }
+          );
+        }
+      }
+    );
+	  $(document).ready(function(){
+    $('.close_documents_btn').click(function(){
+      $('.no_padding_all.hdsgnpg_rightpnl').removeClass('blk_visible');
+    });
+    $('.view_docs_respnsv_blk button').click(function(){
+      $('.no_padding_all.hdsgnpg_rightpnl').addClass('blk_visible');
+    });
+  });
+    /*---- SOF script for top navigation drop down ----*/
+    $(".nav_lnk").bind(hitEvent, function (event) {
+      var curMenu = this;
+      var menuDiv = $('#' + $(curMenu).attr('data-link'));
+
+      var openedMenu = $('.subnav_wrp.open');
+      if (typeof openedMenu !== undefined && openedMenu.length >= 0) {
+        if (openedMenu.attr('id') !== undefined && openedMenu.attr('id') == menuDiv.attr('id')) {
+          menuDiv.removeClass('open');
+          $('.nav_lnk.menu.cur').removeClass('cur');
+          event.stopPropagation();
+          return;
+        }
+      }
+      if (typeof openedMenu === undefined || openedMenu.length <= 0) {
+        menuDiv.addClass('open');
+        $(curMenu).addClass('cur');
+        $(".subnav_wrp.open").bind(hitEvent, function (event) {
+          event.stopPropagation();
+        })
+      }
+      else {
+        $('.subnav_wrp').removeClass('open');
+        $('.nav_lnk.menu.cur').removeClass('cur');
+        setTimeout(function () {
+          menuDiv.addClass('open');
+          $(curMenu).addClass('cur');
+          $(".subnav_wrp.open").bind(hitEvent, function (event) {
+            event.stopPropagation();
+          })
+        }, 500);
+      }
+      event.stopPropagation();
+    });
+
+    $('html').bind(hitEvent, function () {
+      $('.subnav_wrp.open').removeClass('open');
+      $('.nav_lnk.menu.cur').removeClass('cur');
+    });
+    /*---- EOF script for top navigation drop down ----*/
+
+    /*---- SOF for my account menu drodown for 768px and less ----*/
+    $(".myaccmenu_linktxt").bind(hitEvent, function () {
+      $(".dropmenu_menu").slideToggle(200);
+    });
+    /*---- EOF for my account menu drodown for 768px and less ----*/
+
+  });
+
+  var config = {
+    '.chosen-select': {},
+    '.chosen-select-deselect': { allow_single_deselect: true },
+    '.chosen-select-no-single': { disable_search_threshold: 10 },
+    '.chosen-select-no-results': { no_results_text: 'Oops, nothing found!' },
+    '.chosen-select-width': { width: "95%" }
+  }
+  for (var selector in config) {
+    if ($(selector).chosen) {
+      $(selector).chosen(config[selector]);
+    }
+  }
+
+  $(".flat_select").selectpicker({ style: 'btn-hg btn-primary', menuStyle: 'dropdown-inverse' });
+
+
+  $('.subnv_list').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.nav_blk01').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.footer_linklist').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.subnv_listttl').find('a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.footer_ttltxt01').find('a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.copyinfo_txt').find('a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+
+  $('.menu_list').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.menu_list2').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.menu_sublist').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+  $('.menu_listttl').find('li a').each(function () {
+    $(this).attr("target", "_blank");
+  });
+
+
+  var colour = [
+      "rgb(142, 68, 173)",
+      "rgb(243, 156, 18)",
+      "rgb(135, 0, 0)",
+      "rgb(211, 84, 0)",
+      "rgb(0, 106, 63)",
+      "rgb(192, 57, 43)",
+      "rgb(39, 174, 96)",
+      "rgb(41, 128, 185)"
+  ];
+
+  $(".brick").each(function () {
+    //this.style.backgroundColor =  colour[colour.length * Math.random() << 0];
+  });
+
+  $('#visaHeading').click(function () {
+    $('.update_pop_visa').toggle();
+  });
+
+  $('#upHeading').click(function () {
+    $('.update_pop').toggle();
+  });
+
+  $('#faqHeading').click(function () {
+    $('.update_pop_faq').toggle();
+  });
+
+  $('.update_close_btn_visa').click(function () {
+    $('.update_pop_visa').hide();
+  });
+
+  $('.update_close_btn').click(function () {
+    $('.update_pop').hide();
+  });
+
+  $('.update_close_btn_faq').click(function () {
+    $('.update_pop_faq').hide();
+  });
+
+  myAccountCommon.LoginBannerImageAsPerResolution();
+  $(window).bind('resize', myAccountCommon.LoginBannerImageAsPerResolution);
+  myAccountCommon.GetCurrencySymbolFor("CurrencySymbol");
+  myAccountCommon.LoyaltyToggleBlock();
+
+  $(".onlineLinks").click(function (e) {
+    if (typeof Offline != "undefined" && Offline.state == "down") {
+      e.preventDefault();
+      e.stopPropagation();
+      $(".modal").modal('hide');
+      $("#OfflinePopup").modal('show');
+    }
+    else {
+      return true;
+    }
+  });
+
+  $(".menu_row ul li a").click(function (e) {
+    if (typeof Offline != "undefined" && Offline.state == "down") {
+      e.preventDefault();
+      e.stopPropagation();
+      $(".modal").modal('hide');
+      $("#OfflinePopup").modal('show');
+    }
+    else {
+      return true;
+    }
+  });
+  if ($("#Tripmenu").undefined || $("#Tripmenu").length > 0) {
+    $('a.mm_menu_link').on('click', function () {
+      if ($(this).hasClass("active")) {
+        var sideMenu = $("#menu").data("mmenu");
+        $('.mm_menu_link').removeClass('active');
+        sideMenu.close();
+      }
+      else {
+        $('.mm_menu_link').addClass('active');
+        $("div#menu").mmenu({
+          "navbar": false
+        });
+      }
+    });
+
+    $("#Tripmenu").mmenu(
+      {
+        extensions: ["position-bottom", "fullscreen", "theme-white", "listview-50", "fx-panels-slide-up", "fx-listitems-drop", "border-offset"],
+        navbar: false,
+
+      }, {
+
+      });
+    var mmMenu = $("#Tripmenu").data("mmenu");
+
+    $("#my-button").click(function () {
+      mmMenu.close();
+    });
+  }
+});
+
+var myAccountCommon = new function () {
+  var me = this;
+  this.ClearHiddenFieldValue = function (Id) {
+    if (isgcommon.isNullOrEmpty($('#' + Id).val()))
+      $('#' + Id).val('');
+  }
+
+  this.isNumberKey = function (evt) {
+    var charCode = (evt.which) ? evt.which : evt.keyCode
+    if (charCode > 31 && (charCode < 48 || charCode > 57))
+      return false;
+    return true;
+  }
+
+  this.isNullOrEmpty = function (value) {
+    var isNullOrEmpty = true;
+    if (value) {
+      if (typeof (value) == 'string') {
+        if (value.length > 0)
+          isNullOrEmpty = false;
+      }
+      else {
+        isNullOrEmpty = false;
+      }
+    }
+    return isNullOrEmpty;
+  }
+
+  this.NullToEmptyString = function (value) {
+
+    if (value == null) {
+      return "";
+    }
+    return value;
+  }
+
+  this.IsNumeric = function (value) {
+    var reg = /^\d+$/;
+    if ($.trim(String(value)).match(reg))
+      return true;
+    else
+      return false;
+  }
+
+  this.CheckToOpenInSameTabOrNewTab = function (UrlToRedirect) {
+    var url = "";
+    if (!this.isNullOrEmpty(UrlToRedirect)) {
+      var returnvalue;
+      var isNewTab = false;
+
+      if (UrlToRedirect.indexOf("http") !== -1) {
+        url = UrlToRedirect;
+        isNewTab = true;
+      }
+      else {
+        url = hostURL + UrlToRedirect;
+      }
+
+      if (isNewTab) {
+        window.open(url, '_blank');
+      }
+      else {
+        window.location = url;
+      }
+    }
+    else {
+      alert(isgErrorMessages.MenuError);
+    }
+  }
+
+  this.ToggleItinDetils = function () {
+    $('.itnr_expnd_btn .btn_blk .btn_yellow').on('click', function () {
+      if ($(this).attr('id').toLowerCase() == "expandit") {
+        $(this).attr('id', 'CollapseIt');
+        $(".itnry_dtls ul > li").find('.colps_itnr_hdr').each(function () {
+          $(this).toggleClass("active", true);
+          $(this).siblings().toggleClass("show", true);
+          $(this).siblings().toggleClass("hide", false);
+        });
+        $(this).html("<span><i class='fa fa-minus'></i></span>Collapse All");
+      }
+      else {
+        $(this).attr('id', 'ExpandIt');
+        $(".itnry_dtls ul > li").find('.colps_itnr_hdr').each(function () {
+          $(this).toggleClass("active", false);
+          $(this).siblings().toggleClass("hide", true);
+          $(this).siblings().toggleClass("show", false);
+        });
+        $(this).html("<span><i class='fa fa-plus'></i></span>Expand All");
+      }
+    });
+
+    $(".itnry_dtls ul > li").each(function () {
+      $(this).find('.colps_itnr_hdr').bind('click', function () {
+        $(this).toggleClass("active");
+        $(this).siblings().toggleClass("hide", false);
+        $(this).siblings().toggleClass("show", false);
+
+        if ($(this).hasClass('active')) {
+          $(this).siblings().toggleClass("hide", false);
+          $(this).siblings().toggleClass("show", true);
+        }
+        else {
+          $(this).siblings().toggleClass("hide", true);
+          $(this).siblings().toggleClass("show", false);
+        }
+      });
+    });
+
+    $('.cancel_btn').bind('click', function () {
+      $(this).parents('.itnr_inr_pnl').toggleClass("show", false);
+      $(this).parents('.itnr_inr_pnl').toggleClass("hide", true);
+      $(this).parents('.itnr_inr_pnl').siblings().toggleClass("active");
+    });
+  }
+
+  this.LoginBannerImageAsPerResolution = function () {
+    var height = $(window).height();
+    var width = $(window).width();
+    var new_Height = 0;
+    if ($(".loginbannercntr").height() != null && $(".loginbannercntr").height() > 0)
+      new_Height = (($(".loginbannercntr").height()));
+    else
+      new_Height = 803;
+
+    if (new_Height < 305)
+      new_Height = 305;
+
+    var this_ratio = 1423 / 803, parent_ratio = $('body').width() / new_Height;
+
+    if (this_ratio > parent_ratio) {
+      $(".loginbannercntr > img").css({
+        'height': '100%',
+        'width': 'auto', 'top': 0
+      });
+
+      var this_scale_ratio = new_Height / 803,
+         this_new_width = 1423 * this_scale_ratio;
+    }
+    else {
+      $(".loginbannercntr > img").css({
+        'height': 'auto',
+        'width': '100%', 'left': 0
+      });
+    }
+
+    new_Height = parseInt(new_Height) + 'px';
+    $(".loginbannercntr").css('height', new_Height);
+  }
+
+  this.BuildUpdates = function (result) {
+    var htmlText = "";
+    var htmlUpdateHeadingText = "";
+    var updateCount = 0;
+    if (result != null && result.length > 0) {
+      htmlText = "<a onclick=\"javascript: myAccountCommon.CloseUpdates();\" class=\"update_close_btn\"><i class=\"fa fa-times\"></i></a>";
+      htmlText += "<h4 class=\"update_pop_ttl\">Travel updates</h4>";
+
+      for (var item = 0; item < result.length; item++) {
+        if (result[item].TypeCode != undefined && result[item].TypeCode.toLowerCase() == "itin") {
+          if (result[item].ItineraryNo != null && result[item].ItineraryNo != "") {
+            htmlText += "<div class=\"update_pop_conrow\">";
+            htmlText += "<p>" + result[item].ShortDesc + "</p>";
+            if (result[item].LinkUrl != null && result[item].LinkUrl != "" && result[item].LinkText != null && result[item].LinkText != "")
+              htmlText += "<p><a onclick=\"javascript: myAccountCommon.CheckToOpenInSameTabOrNewTab('" + result[item].LinkUrl + "'); return false;\"   >" + result[item].LinkText + "</a></p>";
+            htmlText += "</div>";
+            updateCount++;
+          }
+        }
+        else if (result[item].TypeCode != undefined && result[item].TypeCode.toLowerCase() == "quote") {
+          if (result[item].QuoteNo != null && result[item].QuoteNo != "") {
+            htmlText += "<div class=\"update_pop_conrow\">";
+            htmlText += "<p>" + result[item].ShortDesc + "</p>";
+            if (result[item].LinkUrl != null && result[item].LinkUrl != "" && result[item].LinkText != null && result[item].LinkText != "")
+              htmlText += "<p><a onclick=\"javascript: myAccountCommon.CheckToOpenInSameTabOrNewTab('" + result[item].LinkUrl + "'); return false;\"   >" + result[item].LinkText + "</a></p>";
+            htmlText += "</div>";
+            updateCount++;
+          }
+        }
+        else if (result[item].TypeCode != undefined && result[item].TypeCode.toLowerCase() == "msg") {
+          htmlText += "<div class=\"update_pop_conrow\">";
+          htmlText += "<p>" + result[item].ShortDesc + "</p>";
+          htmlText += "</div>";
+          updateCount++;
+        }
+      }
+    }
+    else {
+      htmlText = "<a onclick=\"javascript: myAccountCommon.CloseUpdates();\" class=\"update_close_btn\"><i class=\"fa fa-times\"></i></a>";
+      htmlText += "<h4 class=\"update_pop_ttl\">Travel updates</h4>";
+      htmlText += "<div class=\"update_pop_conrow\">";
+      htmlText += "<p>No recent updates.</p>";
+      htmlText += "</div>";
+
+    }
+    if (updateCount > 0)
+      htmlUpdateHeadingText = "<span>" + updateCount + "</span><em>Updates &nbsp;</em>";
+    else
+      htmlUpdateHeadingText = "<em>Updates &nbsp;</em>";
+    $("#upHeading").html(htmlUpdateHeadingText);
+    $("#updateData").html(htmlText);
+    updateCount = 0;
+  }
+
+  this.CloseUpdates = function () {
+    $('.update_pop').hide();
+  }
+
+  this.editProfile = function (actName, isConsultant) {
+    var error = "";
+    $("#errMsg").html("");
+    $("#errMsg").hide();
+
+    var fName = $("#FName").val();
+    var lName = $("#LName").val();
+    var emailId = $("#Email").val();
+    var newPswd = $("#NewPassword").val();
+    var confPswd = $("#ConfirmPassword").val();
+    var oldPassword = $("#OldPassword").val();
+    var MyAppKey = $("#MyAppKey").val();
+    if (typeof (MyAppKey) === "undefined") {
+      MyAppKey = "";
+    }
+    if (typeof (newPswd) === "undefined" || newPswd == "") {
+      error += MyAccountConstants.PleaseEnterNewPassword + " </br>";
+    }
+    if (typeof (confPswd) === "undefined" || confPswd == "") {
+      error += MyAccountConstants.PleaseConfirmNewPassword + " </br>";
+    }
+    else if (actName.toLowerCase() == 'editprofile' && isConsultant == 'false' && (typeof (oldPassword) === "undefined" || oldPassword == "")) {
+      error += MyAccountConstants.PleaseEnterOldPassword + " </br>";
+    }
+    else {
+      error += myAccountCommon.ValidatePassword(newPswd);
+      if (error == "" && newPswd != confPswd) {
+        error += MyAccountConstants.PasswordsDoNotMatch + " </br>";
+      }
+    }
+
+    if (error != "") {
+      $(".login_error").html(error);
+      $(".login_error").addClass('active error');
+      $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+      setTimeout(
+                        function () {
+                          $(".login_error").removeClass('active error');
+                        }, 30000
+                      );
+      return false;
+    }
+
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "account/" + actName,
+        data: {
+          FName: fName,
+          LName: lName,
+          Email: emailId,
+          NewPassword: newPswd,
+          ConfirmPassword: confPswd,
+          OldPassword: oldPassword,
+          MyAppKey: MyAppKey
+        },
+
+        success: function (result) {
+          if (result !== "undefined" && result.Status == 0) {
+            myAccountCommon.ClearProfileForm();
+            $(".login_error").removeClass('error');
+            $(".login_error").addClass('active success');
+            if (result.isRegister) {
+              if (result.RegistrationSuccessMessage)
+                $(".login_error").html(result.RegistrationSuccessMessage);
+              else
+                $(".login_error").html(MyAccountConstants.RegistrationSuccessMessage);
+            }
+            else
+              $(".login_error").html(MyAccountConstants.ProfileUpdateMsg);
+          }
+          else if (result !== "undefined" && actName.toLowerCase() == 'register' && !result.isValid && result.Status == 5) {
+            $(".login_error").html(MyAccountConstants.MailIdAppKeyNotMatch);
+            $(".login_error").removeClass('success');
+            $(".login_error").addClass('active error');
+          }
+          else if (actName.toLowerCase() == 'editprofile' && result !== "undefined" && result.Status == 6) {
+            $(".login_error").html(MyAccountConstants.OldPasswordisWrong);
+            $(".login_error").removeClass('success');
+            $(".login_error").addClass('active error');
+          }
+          else if (result !== "undefined" && result.Status == 2) {
+            $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+            $(".login_error").removeClass('success');
+            $(".login_error").addClass('active error');
+          }
+          else {
+            $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+            $(".login_error").removeClass('success');
+            $(".login_error").addClass('active error');
+          }
+          $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+          setTimeout(function () {
+            $(".login_error").removeClass('active success error');
+            if (result !== "undefined" && result.Status == 0 && result.isRegister)
+              window.location = hostURL + "Dashboard/index";
+          }, 5000
+                      );
+        },
+        error: function (msg) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              myAccountCommon.RedirectToUrl('', 'Account/Error');
+            }
+            else {
+              console.log(msg);
+              $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+              $(".login_error").addClass('active error');
+              setTimeout(function () {
+                $(".login_error").removeClass('active error');
+              }, 30000);
+            }
+          }
+        }
+      });
+
+    }
+    catch (ex) {
+      console.log(ex);
+      $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+      $(".login_error").removeClass('success');
+      $(".login_error").addClass('active error');
+      $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error');
+      }, 30000
+                      );
+    }
+  }
+
+  this.ValidatePassword = function (pswd) {
+    var error = "";
+    //var regSpecialChar = new RegExp("^[a-zA-Z0-9 ]*$");
+    var regAlpha = new RegExp("[a-gA-Z]");
+    var regNumeric = new RegExp("[0-9]");
+
+    if (pswd.length < 7
+      //|| regSpecialChar.test(pswd)
+      || !regAlpha.test(pswd.toLowerCase())
+      || !regNumeric.test(pswd)) {
+      //error += "The password should contain minimum 7 characters,atleast one special character and number.";
+      error += MyAccountConstants.PasswordValidationError;
+    }
+    return error;
+  }
+
+  this.IsEmail = function (email) {
+    var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    return regex.test(email);
+  }
+
+  this.ClearProfileForm = function () {
+    $("#NewPassword").val("");
+    $("#ConfirmPassword").val("");
+    $("#OldPassword").val("");
+  }
+
+  this.CollapseOptUpgBlock = function (divID) {
+    $('#' + divID).slideToggle("fast", function () {
+      var sign = $(this).siblings().find('.icon_link > span').html();
+      if ($(this).siblings().find('.icon_link >span i').hasClass("fa fa-plus")) {
+        $(this).siblings().find('.icon_link >span i').removeClass("fa fa-plus");
+        $(this).siblings().find('.icon_link >span i').addClass("fa fa-minus");
+      }
+      else {
+        $(this).siblings().find('.icon_link >span i').removeClass("fa fa-minus");
+        $(this).siblings().find('.icon_link >span i').addClass("fa fa-plus");
+      }
+    })
+  };
+
+  this.GetCurrencySymbolFor = function (classname) {
+    $("." + classname).each(function () {
+      $(this).text(myAccountCommon.GetCurrencySymbol($(this).text()));
+    });
+  }
+
+  this.GetCurrencySymbol = function (currencyCode) {
+    var currency_symbols = {
+      'USD': '$', // US Dollar
+      'EUR': '€', // Euro
+      'CRC': '₡', // Costa Rican Colón
+      'GBP': '£', // British Pound Sterling
+      'ILS': '₪', // Israeli New Sheqel
+      'INR': '₹', // Indian Rupee
+      'JPY': '¥', // Japanese Yen
+      'KRW': '₩', // South Korean Won
+      'NGN': '₦', // Nigerian Naira
+      'PHP': '₱', // Philippine Peso
+      'PLN': 'zł', // Polish Zloty
+      'PYG': '₲', // Paraguayan Guarani
+      'THB': '฿', // Thai Baht
+      'UAH': '₴', // Ukrainian Hryvnia
+      'VND': '₫' // Vietnamese Dong
+    }
+    if (currencyCode !== undefined && !this.isNullOrEmpty(currencyCode)) {
+      return (currency_symbols[currencyCode]);
+    }
+  };
+
+  this.LoyaltyToggleBlock = function () {
+    $('.catg_type').each(function () {
+      $(this).find('.tgl_header01').bind('click', function () {
+        $(this).siblings().slideToggle('fast');
+        $(this).toggleClass('active');
+        if ($(this).hasClass('active')) {
+          $(this).find('.plus_icn > i').removeClass("fa fa-plus");
+          $(this).find('.plus_icn > i').addClass("fa fa-minus");
+        }
+        else {
+          $(this).find('.plus_icn > i').removeClass("fa fa-minus");
+          $(this).find('.plus_icn > i').addClass("fa fa-plus");
+        }
+      });
+    });
+  }
+
+  this.LoyaltyItemSelected = function (catgId) {
+    if ($('#' + catgId).hasClass("checked")) {
+      $('#' + catgId).parent().parent().removeClass("checked")
+    }
+    else {
+      $('#' + catgId).parent().parent().addClass("checked")
+    }
+
+    $('#' + catgId).parent().parent().parent().find(".prdct_slct .checked").each(function () {
+      if ($(this).attr("id").toLowerCase() != catgId.toLowerCase()) {
+        $(this).removeClass("checked");
+        $(this).parent().parent().removeClass("checked");
+      }
+    });
+  }
+
+  this.SendEmailForLoyaltyGiftRequest = function () {
+    //
+    var category = "";
+    var itemImagePath = "";
+    var itemImageAlt = "";
+    var categoryDesc = "";
+    $('#LoyaltyGiftModal').modal('hide');
+    $("#GiftRequest_preloader").show();
+    $("#divLoyaltyCatg").find(".catg_type").each(function () {
+      var categoryCode = $(this).find(".prdct_slct .checked").attr('id');
+      if (categoryCode != undefined) {
+        if (category == "")
+        { category = categoryCode; }
+        else
+        { category += "," + categoryCode; }
+      }
+      var img = $(this).find(".prdct_slct .checked").parent().parent().find('img');
+      if (img != undefined && img.length > 0) {
+        itemImagePath = $(img).attr('src');
+        itemImageAlt = $(img).attr('alt');
+        categoryDesc = $(this).find(".prdct_slct .checked").parent().parent().find('.txt_wrp02_mod h3').html()
+      }
+    });
+    if (category != undefined && category == "") {
+      $("#GiftRequest_preloader").hide();
+      $("#dvGiftEr").text(MyAccountConstants.ErrorMsgForSelection);
+      $("#dvGiftEr").addClass("error");
+      $("#dvGiftEr").show();
+      setTimeout(function () {
+        $("#dvGiftEr").hide();
+        $("#dvGiftEr").text('');
+      }, 30000);
+    } else if (category != undefined && category.split(',').length > 1) {
+      $("#GiftRequest_preloader").hide();
+      $("#dvGiftEr").text(MyAccountConstants.ErrorMsgForMultipleSelection);
+      $("#dvGiftEr").addClass("error");
+      $("#dvGiftEr").show();
+      setTimeout(function () {
+        $("#dvGiftEr").hide();
+        $("#dvGiftEr").text('');
+      }, 30000);
+    } else {
+      try {
+        $.ajax({
+          cache: false,
+          type: "post",
+          url: hostURL + "Loyalty/SendEmailForLoyaltyGiftRequest",
+          data: {
+            ItemCode: category,
+            LoyaltyImagePath: itemImagePath,
+            LoyaltyImageAlt: itemImageAlt,
+            CategoryDesc: categoryDesc
+          },
+          success: function (result) {
+            if (!myAccountCommon.isNullOrEmpty($.trim(result))) {
+              if (result.Status == undefined && result.match('Error has occured') != null && result.match('Error has occured').length > 0) {
+                window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+              }
+              else {
+                $("#GiftRequest_preloader").hide();
+                if (result != undefined && result.Status) {
+                  $("#dvGiftEr").text(MyAccountConstants.GiftRequestEmailSuccessMsg);
+                  $("#dvGiftEr").addClass("success");
+                  $("#dvGiftEr").show();
+                  myAccountCommon.ResetGiftSelection();
+                  setTimeout(function () {
+                    $("#dvGiftEr").hide(); location.reload();
+                  }, 2000);
+                  $('#LoyaltyGiftModal').modal('hide');
+                }
+                else {
+                  $("#dvGiftEr").text(MyAccountConstants.GiftRequestEmailErrorMsg);
+                  $("#dvGiftEr").addClass("error");
+                  $("#dvGiftEr").show();
+                  setTimeout(function () {
+                    $("#dvGiftEr").hide(); location.reload();
+                  }, 2000);
+                  $('#LoyaltyGiftModal').modal('hide');
+                }
+              }
+            }
+          },
+          error: function (msg) {
+            if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+              if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+                window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+              }
+              else {
+                $("#GiftRequest_preloader").hide();
+                console.log(msg);
+                $("#dvGiftEr").text(MyAccountConstants.GenericErrorMsg);
+                $("#dvGiftEr").addClass("error");
+                $("#dvGiftEr").show();
+                setTimeout(function () {
+                  $("#dvGiftEr").hide();
+                  $("#dvGiftEr").text(''); location.reload();
+                }, 2000);
+                $('#LoyaltyGiftModal').modal('hide');
+              }
+            }
+          }
+        });
+      }
+      catch (ex) {
+        $("#GiftRequest_preloader").hide();
+        console.log(ex);
+      }
+    }
+  }
+
+  this.SendEmailForLoyaltyGiftRequestV1 = function () {
+    var category = "";
+    var itemImagePath = "";
+    var itemImageAlt = "";
+    var categoryDesc = "";
+    $("#GiftRequest_preloader").show();
+    $("#divLoyaltyCatg").find(".catg_type").each(function () {
+      var categoryCode = $(this).find(".prdct_slct .checked").attr('id');
+      if (categoryCode != undefined) {
+        if (category == "")
+        { category = categoryCode; }
+        else
+        { category += "," + categoryCode; }
+      }
+      var img = $(this).find(".prdct_slct .checked").parent().parent().find('img');
+      if (img != undefined && img.length > 0) {
+        itemImagePath = $(img).attr('src');
+        itemImageAlt = $(img).attr('alt');
+        categoryDesc = $(this).find(".prdct_slct .checked").parent().parent().find('.txt_wrp02 p').html()
+      }
+    });
+    if (category != undefined && category == "") {
+      $("#GiftRequest_preloader").hide();
+      $("#dvGiftEr").text(MyAccountConstants.ErrorMsgForSelection);
+      $("#dvGiftEr").addClass("error");
+      $("#dvGiftEr").show();
+      setTimeout(function () {
+        $("#dvGiftEr").hide();
+        $("#dvGiftEr").text('');
+      }, 30000);
+    } else if (category != undefined && category.split(',').length > 1) {
+      $("#GiftRequest_preloader").hide();
+      $("#dvGiftEr").text(MyAccountConstants.ErrorMsgForMultipleSelection);
+      $("#dvGiftEr").addClass("error");
+      $("#dvGiftEr").show();
+      setTimeout(function () {
+        $("#dvGiftEr").hide();
+        $("#dvGiftEr").text('');
+      }, 30000);
+    } else {
+      jQuery.noConflict();
+      $('#LoyaltyGiftModal').modal('show');
+      $("#GiftRequest_preloader").hide();
+    }
+  }
+
+  this.CloseLoyaltyGift = function () {
+    $('#LoyaltyGiftModal').modal('hide');
+  }
+
+  this.SendEmailForCostEnquiryRequest = function (itineraryNo) {
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Itinerary/SendEmailForCostEnquiry",
+        data: { ItineraryNo: itineraryNo },
+        beforeSend: function () {
+          $("#CostRequest_preloader").show();
+        },
+        success: function (result) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(result))) {
+            if (result.Status == undefined && result.match('Error has occured') != null && result.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#CostRequest_preloader").hide();
+              if (result) {
+                $("#dvCostEr").text(MyAccountConstants.CostEnquiryRequestSuccessMessage);
+                $("#dvCostEr").addClass("success");
+                $("#dvCostEr").show();
+                myAccountCommon.ResetGiftSelection();
+                setTimeout(function () {
+                  $("#dvCostEr").hide();
+                }, 30000);
+              }
+              else {
+                $("#dvCostEr").text(MyAccountConstants.CostEnquiryRequestErrorMessage);
+                $("#dvCostEr").addClass("error");
+                $("#dvCostEr").show();
+                setTimeout(function () {
+                  $("#dvCostEr").hide();
+                }, 30000);
+              }
+            }
+          }
+        },
+        error: function (msg) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#CostRequest_preloader").hide();
+              console.log(msg);
+              $("#dvCostEr").text(MyAccountConstants.GenericErrorMsg);
+              $("#dvCostEr").addClass("error");
+              $("#dvCostEr").show();
+              setTimeout(function () {
+                $("#dvCostEr").hide();
+                $("#dvCostEr").text('');
+              }, 30000);
+            }
+          }
+        }
+      });
+      $("#dvCostEr").text('');
+    }
+    catch (ex) {
+      $("#CostRequest_preloader").hide();
+      console.log(ex);
+    }
+  }
+
+  this.ResetGiftSelection = function () {
+    $("#divLoyaltyCatg").find(".catg_type").each(function () {
+      $(this).find(".prdct_slct .checked").each(function () {
+        $(this).removeClass("checked");
+        $(this).parent().parent().removeClass("checked")
+      });
+    });
+  }
+
+  this.ParseJsonDateToDateTime = function (jsonDate) {
+    if (jsonDate != null && jsonDate != undefined && jsonDate != "") {
+      if (jsonDate.toString().indexOf("Date") > 0)
+        //return $.datepicker.formatDate('dd/mm/yy', new Date(parseInt(jsonDate.substr(6))));
+        return new Date(parseInt(jsonDate.substr(6)));
+      else
+        return jsonDate;
+    }
+    else
+      return null;
+  }
+
+  this.AppendZero = function (date) {
+
+    if (date != undefined && date != '') {
+
+      if (parseInt(date) >= 10) {
+        return date;
+      }
+      else {
+        return "0" + date;
+      }
+    }
+  }
+
+  this.RedirectToUrl = function (event, url) {
+    if (typeof (url) !== 'undefined' && url != '' && url != "javascript:void(0)") {
+      //event.preventDefault();  //stop the browser from following
+      window.location.href = url;
+    }
+  }
+
+  this.CheckForMailToField = function () {
+    if (myAccountCommon.isNullOrEmpty($("#email_to").val().trim())) {
+      $('#btnSendMailsubmit').prop("disabled", true);
+    }
+    else {
+      $('#btnSendMailsubmit').prop("disabled", false);
+    }
+  }
+
+  this.ImageOnError = function (image) {
+    if (image && image.attributes["src"]) {
+      image.attributes["src"].value = MyAccountConstants.HostUrl + "images/no_image.jpg";
+    }
+    // 
+    //var path = image.attributes["src"].value;
+    //var db = new PouchDB('myAppImagesDb');
+    //db.get(path).then(function (doc) {
+    //  console.log("ImageOnError");
+    //  image.attributes["src"].value = doc.imageSource;
+    //}).catch(function () {
+    //  image.attributes["src"].value = MyAccountConstants.HostUrl + "images/no_image.jpg";
+    //});
+  }
+
+  this.ImageOnErrorForOneLineMsg = function (image) {
+     if (image && image.attributes["src"]) {
+        image.attributes["src"].value = MyAccountConstants.HostUrl + "images/no_image_OneLineMsg.jpg";
+     }
+  }
+
+  this.ItinImageOnError = function (image) {
+    if (image && image.attributes["src"]) {
+      image.attributes["src"].value = MyAccountConstants.HostUrl + "images/no_image.jpg";
+    }
+    //var path = image.attributes["src"].value;
+    //var db = new PouchDB('myAppImagesDb');
+    //db.get(path).then(function (doc) {
+    //  //console.log("ImageOnError");
+    //  image.attributes["src"].value = doc.imageSource;
+    //}).catch(function () {
+    //  me.HideImageOnError(image);
+    //});
+  }
+
+  this.DestinationDocumentImageOnError = function (image) {
+    //var path = image.attributes["src"].value;
+    //var db = new PouchDB('myAppImagesDb');
+    //db.get(path).then(function (doc) {
+    //  //console.log("ImageOnError");
+    //  image.attributes["src"].value = doc.imageSource;
+    //}).catch(function () {
+    //  image.attributes["src"].value = MyAccountConstants.HostUrl + "images/destination_document_no_image.jpg";
+    //});
+  }
+
+  this.UpdateReadMessage = function (seqno, UrlToredirect) {
+    //var seqno = this.attr("dataSeqNo").val();
+    try {
+      $.ajax({
+        cache: false,
+        async: true,
+        type: "post",
+        url: hostURL + "common/UpdateReadMessage",
+        data: { Seqno: seqno },
+        success: function (data) {
+          myAccountCommon.CheckToOpenInSameTabOrNewTab(UrlToredirect);
+        },
+        error: function (msg) {
+          console.log(ex);
+        }
+      });
+    }
+    catch (ex) {
+      console.log(ex);
+    }
+  }
+
+  this.SendEmailForForgotPassword = function () {
+    var emailId = $("#Email").val();
+    var error = "";
+    if (emailId == undefined || emailId == null || emailId == '') {
+      error = MyAccountConstants.PleaseEnterYourEmailAddress;
+    }
+    else if (!myAccountCommon.IsEmail(emailId)) {
+      error = MyAccountConstants.EmailAddressInvalid;
+    }
+    if (error != "") {
+      $(".login_error").removeClass("success");
+      $(".login_error").html(error);
+      $(".login_error").addClass('active error');
+      $(".login_error").show();
+      $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error');
+      }, 30000
+      );
+      return false;
+    }
+    if (typeof grecaptcha != 'undefined') {
+      var response = grecaptcha.getResponse();
+      if (response.length == 0) {
+        document.getElementById('g-recaptcha-error').innerHTML = '<span style="color:red;">This field is required.</span>';
+        return false;
+      }
+    }
+    
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "Account/ForgotPassword",
+        data: {
+          ClientEmail: emailId
+        },
+        beforeSend: function () {
+          $("#forgotpasswd_preloader").show();
+        },
+        success: function (result) {
+          $("#forgotpasswd_preloader").hide();
+          $(".login_error").show();
+          if (result.IsRegisterdUser) {
+            if (result.Status) {
+              $("#Email").val('');
+              if (result.ForgotPasswordLinkSentSuccessMessage)
+                $(".login_error").text(result.ForgotPasswordLinkSentSuccessMessage);
+              else
+                $(".login_error").text(MyAccountConstants.ForgotPasswordLinkSentSuccessMessage);
+              $(".login_error").removeClass("error");
+              $(".login_error").addClass("success");
+              $(".login_error").addClass("active");
+              setTimeout(function () {
+                $(".login_error").text('');
+                $(".login_error").removeClass("active");
+              }, 30000);
+            }
+            else {
+              $(".login_error").text(MyAccountConstants.ForgotPasswordLinkSentErrorMessage);
+              $(".login_error").removeClass("success");
+              $(".login_error").addClass("error");
+              $(".login_error").addClass("active");
+              $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+              setTimeout(function () {
+                $(".login_error").text('');
+                $(".login_error").removeClass("active");
+              }, 30000);
+            }
+          }
+          else {
+            $(".login_error").text(MyAccountConstants.ForgotPasswordNotRegisteredUser);
+            $(".login_error").removeClass("success");
+            $(".login_error").addClass("error");
+            $(".login_error").addClass("active");
+            $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+            setTimeout(function () {
+              $(".login_error").text('');
+              $(".login_error").removeClass("active");
+            }, 30000);
+          }
+        },
+        error: function (msg) {
+          $("#forgotpasswd_preloader").hide();
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              console.log(msg);
+              $(".login_error").text(MyAccountConstants.GenericErrorMsg);
+              $(".login_error").removeClass("success");
+              $(".login_error").addClass("error");
+              $(".login_error").addClass("active");
+              $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+              setTimeout(function () {
+                $(".login_error").text('');
+                $(".login_error").removeClass("active");
+              }, 30000);
+            }
+          }
+        }
+      });
+      $(".login_error").text('');
+    }
+    catch (ex) {
+      $(".login_error").text('');
+      $("#forgotpasswd_preloader").hide();
+      console.log(ex);
+    }
+  }
+
+  this.ResetPassword = function (acctId, accessNumber) {
+    var error = "";
+    $("#errMsg").html("");
+    $("#errMsg").hide();
+
+    var newPswd = $("#NewPassword").val();
+    var confPswd = $("#ConfirmPassword").val();
+
+    if (typeof (newPswd) === "undefined" || newPswd == "") {
+      error += "Please enter Password. </br>";
+    }
+    else {
+      error += myAccountCommon.ValidatePassword(newPswd);
+      if (error == "" && newPswd != confPswd) {
+        error += "Passwords mismatch </br>";
+      }
+    }
+
+    if (error != "") {
+      $(".login_error").html(error);
+      $(".login_error").addClass('active error');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error');
+      }, 30000);
+      return false;
+    }
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "account/ResetPassword",
+        data: {
+          Email: acctId,
+          AccessNumber: accessNumber,
+          NewPassword: newPswd,
+          ConfirmPassword: confPswd
+        },
+        beforeSend: function () {
+          $("#resetpasswd_preloader").show();
+        },
+        success: function (result) {
+          $("#resetpasswd_preloader").hide();
+          if (result !== "undefined" && result.Status == 0) {
+            myAccountCommon.ClearProfileForm();
+            $(".login_error").removeClass("error");
+            $(".login_error").addClass('active success');
+            if (result.PasswordUpdatedSuccessMessage)
+              $(".login_error").html(result.PasswordUpdatedSuccessMessage);
+            else
+              $(".login_error").html(MyAccountConstants.PasswordUpdatedSuccessMessage);
+          }
+          else if (result !== "undefined" && result.Status == 2) {
+            $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+            $(".login_error").removeClass("success");
+            $(".login_error").addClass('active error');
+          }
+          else {
+            $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+            $(".login_error").removeClass("success");
+            $(".login_error").addClass('active error');
+          }
+          $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+          setTimeout(function () {
+            $(".login_error").removeClass('active success error');
+            if (result !== "undefined" && result.Status == 0)
+              window.location = hostURL;
+          }, 5000);
+        },
+        error: function (msg) {
+          $("#resetpasswd_preloader").hide();
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              console.log(msg);
+              $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+              $(".login_error").removeClass("success");
+              $(".login_error").addClass('active error');
+              $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+              setTimeout(function () {
+                $(".login_error").removeClass('active error success');
+              }, 30000);
+            }
+          }
+        }
+      });
+    }
+    catch (ex) {
+      console.log(ex);
+      $("#resetpasswd_preloader").hide();
+      $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+      $(".login_error").removeClass("success");
+      $(".login_error").addClass('active error');
+      $('html,body').animate({ scrollTop: $(".login_error").offset().top - 150 }, 'slow');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error success');
+      }, 30000);
+    }
+  }
+
+  this.MenuUpdates = function () {
+    $.ajax({
+      cache: false,
+      dataType: "json",
+      url: hostURL + "Common/MenuUpdates",
+      error: function (error) {
+        //console.log(error);
+      }
+    });
+  }
+
+  this.BackToPrevPage = function () {
+    if (document.referrer != null && !me.isNullOrEmpty(document.referrer)) {
+      window.location = document.referrer;
+    }
+    else
+      window.location = hostURL + "dashboard/index";
+  }
+
+  this.HideImageOnError = function (image) {
+    $(image).hide();
+  }
+
+  this.ScrollDown = function (htmlElement) {
+    $('html,body').animate({ scrollTop: $(htmlElement).offset().top }, 'slow');
+  }
+
+  this.Instagram = function () {
+    if (instagramFeed == null) {
+      instagramFeed = new Instafeed({
+        get: 'user',
+        userId: MyAccountConstants.SteppesInstgramUserId,
+        clientId: MyAccountConstants.SteppesInstgramClientId,
+        accessToken: MyAccountConstants.SteppesInstagramAccessToken,
+        limit: '6',
+        template:
+          '<div class="col-xs-6 col-sm-4 col-md-4 col-lg-4 img01">' +
+            '<a href="{{link}}" target="_blank"><img src="{{image}}" /></a>' +
+            '</div>',
+        links: true,
+        sortBy: "none"
+      });
+      instagramFeed.run();
+    }
+  }
+  this.isMobile = function () {
+    if (/Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+      return true;
+    else
+      return false;
+  }
+
+  this.UpdateMarketingPreferences = function (accountCode, toMail) {
+    var emailId = $("#Email").val();
+    var error = "";
+    if (emailId == undefined || emailId == null || emailId == '') {
+      error = MyAccountConstants.PleaseEnterYourEmailAddress;
+    }
+    else if (!myAccountCommon.IsEmail(emailId)) {
+      error = MyAccountConstants.EmailAddressInvalid;
+    }
+    if (error != "") {
+      $(".login_error").html(error);
+      $(".login_error").addClass('active error');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error');
+      }, 30000
+      );
+      return false;
+    }
+
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "account/GetGDPRLink",
+        data: {
+          accountCode: accountCode,
+          toMail: $("#Email").val()
+        },
+
+        success: function (result) {
+          if (!(result == undefined || result == null || result == '')) {
+            window.location = result;
+          }
+        },
+        error: function (msg) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              myAccountCommon.RedirectToUrl('', 'Account/Error');
+            }
+            else {
+              console.log(msg);
+              $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+              $(".login_error").addClass('active error');
+              setTimeout(function () {
+                $(".login_error").removeClass('active error');
+              }, 30000);
+            }
+          }
+        }
+      });
+    }
+    catch (ex) {
+      console.log(ex);
+      $(".login_error").html(MyAccountConstants.GenericEditProfileErrorMsg);
+      $(".login_error").removeClass('success');
+      $(".login_error").addClass('active error');
+      setTimeout(function () {
+        $(".login_error").removeClass('active error');
+      }, 30000
+                      );
+    }
+  }
+
+  this.validatecaptcha= function()
+  {
+    var response = grecaptcha.getResponse();
+    if (response.length == 0) {
+      document.getElementById('g-recaptcha-error').innerHTML = '<span style="color:red;">This field is required.</span>';
+      return false;
+    }
+    return true;
+  }
+
+  function verifyCaptcha() {
+    document.getElementById('g-recaptcha-error').innerHTML = '';
+  }
+}
+//for fading out  down arrow on dashboard
+$(window).scroll(function () {
+  if ($(".bannerScrollArrow").length) {
+    //get scroll position
+    var topWindow = $(window).scrollTop();
+    //multipl by 1.5 so the arrow will become transparent half-way up the page
+    var topWindow = topWindow * 1.5;
+    //get height of window
+    var windowHeight = $(window).height();
+    //set position as percentage of how far the user has scrolled 
+    var position = topWindow / windowHeight;
+    //invert the percentage
+    position = 1 - position;
+    //define arrow opacity as based on how far up the page the user has scrolled
+    //no scrolling = 1, half-way up the page = 0
+    $('.bannerScrollArrow').css('opacity', position);
+  }
+});
+

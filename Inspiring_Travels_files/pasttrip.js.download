@@ -1,0 +1,121 @@
+﻿var pastTrip = new function () {
+  var me = this;
+
+  this.PastTripPopup = function (ItineraryNumber) {
+    var preparedOn = '';
+    var preparedFor = '';
+    if (ItineraryNumber != undefined) {
+      //preparedOn = myAccountCommon.ParseJsonDateToDateTime(JSON.parse(itineraryDetails).PreparedOn);
+      //preparedFor = JSON.parse(itineraryDetails).PreparedFor;
+      $.ajax({
+        cache: false,
+        async: false,
+        url: hostURL + "PastTrips/GetDayWiseItinerary",
+        data: { itineraryNo: ItineraryNumber },
+        beforeSend: function () {
+          $("#PasttripModal").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+        },
+        success: function (resultJson) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(resultJson))) {
+            if (resultJson.match('Error has occured') != null && resultJson.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $('#PasttripModal').html('');
+              $('#PasttripModal').html(resultJson);
+              if (preparedOn != null && preparedOn != '') {
+                $('#PasttripModal .quote_infotxt1').html('prepared on ' + myAccountCommon.AppendZero(preparedOn.getDate()) + "." + myAccountCommon.AppendZero((preparedOn.getMonth() + 1)) + "." + preparedOn.getFullYear());
+              }
+              else {
+                $('#PasttripModal .quote_infotxt1').html('');
+              }
+              if (preparedFor != null && preparedFor != '') {
+                $('#PasttripModal .quote_infotxt2').html('For: ' + preparedFor);
+              } else {
+                $('#PasttripModal .quote_infotxt2').html('');
+              }
+            }
+          }
+        },
+        error: function (msg) {
+          $("#PasttripModal").hide();
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#PasttripModal").html(MyAccountConstants.GenericErrorMsg);
+            }
+          }
+        }
+      });
+    }
+    else {
+      $("#PasttripModal").html(MyAccountConstants.NoDetailsFound);
+    }
+  }
+
+  this.SendEmailForPastTripEnquiry = function () {
+    var category = "";
+    $("#PastTripPreloader").show();
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "PastTrips/SendEmailForPastTripEnquiry",
+        data: {
+          ItemCode: category
+        },
+        success: function (result) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(result))) {
+            if (result.Status == undefined &&  result.match('Error has occured') != null && result.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#PastTripPreloader").hide();
+              if (result.Status) {
+                $("#dvPastTripEr").text(MyAccountConstants.HolidaySuggestionEmailSuccessMsg);
+                $("#dvPastTripEr").addClass("success");
+                $("#dvPastTripEr").show();
+                myAccountCommon.ResetGiftSelection();
+                setTimeout(function () {
+                  $("#dvPastTripEr").hide();
+                }, 2000);
+              }
+              else {
+                $("#dvPastTripEr").text(MyAccountConstants.HolidaySuggestionEmailErrorMsg);
+                $("#dvPastTripEr").addClass("error");
+                $("#dvPastTripEr").show();
+                setTimeout(function () {
+                  $("#dvPastTripEr").hide();
+                }, 2000);
+              }
+            }
+          }
+        },
+        error: function (msg) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              myAccountCommon.RedirectToUrl('', 'Account/Error');
+            }
+            else {
+              $("#PastTripPreloader").hide();
+              console.log(msg);
+              $("#dvPastTripEr").text(MyAccountConstants.HolidaySuggestionEmailErrorMsg);
+              $("#dvPastTripEr").addClass("error");
+              $("#dvPastTripEr").show();
+              setTimeout(function () {
+                $("#dvPastTripEr").hide();
+                $("#dvPastTripEr").text('');
+              }, 2000);
+            }
+          }
+        }
+      });
+    }
+    catch (ex) {
+      $("#PastTripPreloader").hide();
+      console.log(ex);
+    }
+  }
+}

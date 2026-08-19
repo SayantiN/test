@@ -1,0 +1,61 @@
+﻿var MyAccountConstants = new function () {
+  this.HostUrl = HostUrl;
+  this.MySteppesEmail = MyDhruvEmail;
+  this.MySteppesContactNo = MyDhruvContactNo;
+
+  this.GenericErrorMsg = "Unexpected system error. The error has been logged and corrective action will be taken. We sincere apologies for the inconvenience caused.";
+
+  /*--- Not in use ---*/
+  this.NoItineraryDetailsFound = "No {0} details found.";
+  this.NoItineraryDetailsFoundOnQuotePopup = "No itinerary details found.";
+  /*--- Not in use ---*/
+
+  this.MailIdAppKeyNotMatch = "Please key in your email address in the ‘User Id’ text box. The email address should be same as given in the email with details on how to register. If the error persists please contact the office on " + this.MySteppesContactNo + " or <a href=\"mailto:" + this.MySteppesEmail + "\">" + this.MySteppesEmail + "</a>";
+  this.ProfileUpdateMsg = "Password updated.";
+  this.EditProfilePartialErrorMsg = "If the problem persists please contact the office on " + this.MySteppesContactNo + " or <a href=\"mailto:" + this.MySteppesEmail + "\">" + this.MySteppesEmail + "</a>";
+  this.GenericEditProfileErrorMsg = "Please re-enter your details or re-load the page.  If the problem persists please contact the office on " + this.MySteppesContactNo + " or <a href=\"mailto:" + this.MySteppesEmail + "\">" + this.MySteppesEmail + "</a>";
+
+  this.GiftRequestEmailSuccessMsg = "Request sent.";
+  this.GiftRequestEmailErrorMsg = "Some error occurred.Please try again.";
+  this.ErrorMsgForSelection = "Multiple gift items have been selected. Please choose only one gift item";
+  this.RegistrationSuccessMessage = "Registration process completed. You are being redirected to dashboard page. Please wait.";
+  this.CostEnquiryRequestSuccessMessage = "Enquiry sent.";
+  this.CostEnquiryRequestErrorMessage = "Enquiry not sent.Please try again.";
+  this.NoDetailsFound = "No details found.";
+  this.ValidEmailId = "Email address is invalid.";
+  this.EnterEmailId = "Please key in email address.";
+  this.HolidaySuggestionEmailSuccessMsg = "Email with holiday ideas sent.";
+  this.HolidaySuggestionEmailErrorMsg = "Some error occurred.Please try again.";
+  this.WishListEnquiryEmailToFriendSuccessMsg = "Wish List Enquiry to friend has sent successfully.";
+  this.WishListEnquiryEmailToFriendErrorMsg = "Some error occurred.Please try again.";
+  this.WishListEnquiryEmailSuccessMsg = "Email with wish list sent.";
+  this.WishListEnquiryEmailErrorMsg = "Some error occurred.Please try again.";
+  this.ForgotPasswordLinkSentSuccessMessage = "Email sent to you with link to reset password.";
+  this.ForgotPasswordLinkSentErrorMessage = "Failed to send an email to you with link to reset password. Please try again.";
+  this.PasswordUpdatedSuccessMessage = "Password updated. You are being redirected to login page. Please wait.";
+  this.OldPasswordisWrong = "Invalid old password.";
+  this.ForgotPasswordNotRegisteredUser = "The given email address is not registered.";
+  this.ErrorMsgForMultipleSelection = "Multiple gift items have been selected. Please choose only one gift item";
+  //
+  this.ContactTravelExpertSuccessMsg = "Email sent to Travel Expert";
+  this.ContactTravelExpertErrorMsg = "Some error occurred.Please try again.";
+  //
+  this.ContactTravelExpertSubject = "Email subject is empty.";
+  this.ContactTravelExpertMailContent = "Email body is empty.";
+
+  this.PasswordValidationError = "Password should be 7 or more characters long and it should include at least one numeric character";
+  this.ItineraryPDFGenerate = "PDF is being generated. Please wait.";
+
+  this.PasswordsDoNotMatch = "Passwords do not match.";
+  this.PleaseEnterOldPassword = "Please key in your old password.";
+  this.PleaseConfirmNewPassword = "Please re-key in your new password.";
+  this.PleaseEnterNewPassword = "Please key in your new password.";
+
+  this.PleaseEnterYourEmailAddress ="Please key in your email address.";
+  this.EmailAddressInvalid = "Email address is invalid.";
+  this.SteppesInstgramClientId = '9c83f64ce64f4c488ab8175c8bf4c533';
+  this.SteppesInstgramUserId = '535983860';
+  this.SteppesInstagramAccessToken = '535983860.9c83f64.4555f6aef53f4d61b75daed18eb9e68a';
+  this.AssignAdditionalImagesMsg = "Your page breakes are saves succesfully.<br/>Please assign additional images from MyAppImages in dhruv for Detailed Itinerary section"
+}
+

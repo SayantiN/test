@@ -1,0 +1,195 @@
+﻿var wishList = new function () {
+
+  this.OpenEmailFriendMail = function (itineraryName, itinLink) {
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "WishList/OpenEmailFriendMail",
+      data: {
+        itineraryName: itineraryName,
+        itinLink: itinLink
+      },
+      beforeSend: function () {
+        $("#EmailToFriend").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+      },
+      success: function (resultJson) {
+        $('#EmailToFriend').html('');
+        $('#EmailToFriend').html(resultJson);
+      },
+      error: function (msg) {
+        $("#EmailToFriend").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+
+  function CheckValidEmail() {
+    var emailList = [];
+    if (!myAccountCommon.isNullOrEmpty($('#email_to').val())) {
+      emailList = $("#email_to").val().split(';');
+      if (emailList.length > 0) {
+        for (var i = 0; i < emailList.length; i++) {
+          if (!myAccountCommon.IsEmail(emailList[i])) {
+            $("#msgDisplaySendMailError").html(MyAccountConstants.ValidEmailId).show();
+            setTimeout(function () {
+              $("#msgDisplaySendMailError").hide();
+            }, 3000);
+            return false;
+            break;
+          }
+        }
+      }
+    }
+    else {
+      $("#msgDisplaySendMailError").html(MyAccountConstants.EnterEmailId).show();
+      setTimeout(function () {
+        $("#msgDisplaySendMailError").hide();
+      }, 3000);
+      return false;
+    }
+    return true;
+  }
+
+  this.SendEmailToFriend = function () {
+    if (CheckValidEmail()) {
+      var category = "";
+      $("#WishListPreloader").show();
+      try {
+        $.ajax({
+          cache: false,
+          type: "post",
+          url: hostURL + "WishList/SendEmailToFriend",
+          data: {
+            emailHeadingContent: $('#EmailHeadingContent').html(),
+            emailItinLink: $('#EmailItinLink').attr('data-Url'),
+            emailTo: $('#email_to').val(),
+            sendCopy: $('#chkCopyEmailToMe').prop("checked")
+          },
+          success: function (result) {
+            $("#WishListPreloader").hide();
+            if (result.Status) {
+              $("#msgDisplaySendMailSuccess").text(MyAccountConstants.WishListEnquiryEmailToFriendSuccessMsg);
+              $("#msgDisplaySendMailSuccess").show();
+              myAccountCommon.ResetGiftSelection();
+              setTimeout(function () {
+                $("#msgDisplaySendMailSuccess").hide(); $("#msgDisplaySendMailSuccess").text('');
+              }, 3000);
+            }
+            else {
+              $("#msgDisplaySendMailError").text(MyAccountConstants.WishListEnquiryEmailToFriendErrorMsg);
+              $("#msgDisplaySendMailError").show();
+              setTimeout(function () {
+                $("#msgDisplaySendMailError").hide();
+              }, 3000);
+            }
+          },
+          error: function (msg) {
+            if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+              if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+                myAccountCommon.RedirectToUrl('', 'Account/Error');
+              }
+              else {
+                $("#WishListPreloader").hide();
+                console.log(msg);
+                $("#msgDisplaySendMailError").text(MyAccountConstants.WishListEnquiryEmailToFriendErrorMsg);
+                $("#msgDisplaySendMailError").show();
+                setTimeout(function () {
+                  $("#msgDisplaySendMailError").hide();
+                  $("#msgDisplaySendMailError").text('');
+                }, 3000);
+              }
+            }
+          }
+        });
+      }
+      catch (ex) {
+        $("#WishListPreloader").hide();
+        console.log(ex);
+      }
+    }
+  }
+
+  this.OpenEnquiryMail = function (tourName, noofdays) {
+    $.ajax({
+      cache: false,
+      async: false,
+      url: hostURL + "WishList/OpenEnquiryMail",
+      data: {
+        tourName: tourName,
+        noofdays: noofdays
+      },
+      beforeSend: function () {
+        $("#EnquiryMail").html('<img  alt="" src=' + hostURL + 'images/ajax-loader.gif></img>');
+      },
+      success: function (resultJson) {
+        $('#EnquiryMail').html('');
+        $('#EnquiryMail').html(resultJson);
+      },
+      error: function (msg) {
+        $("#EnquiryMail").html(MyAccountConstants.GenericErrorMsg);
+      }
+    });
+  }
+
+  this.SendWishListEnquiry = function () {
+    $("#WishListPreloader").show();
+    try {
+      $.ajax({
+        cache: false,
+        type: "post",
+        url: hostURL + "WishList/SendWishListEnquiry",
+        data: {
+          tripName: $('#TripName').attr('data-tripName'),
+          noofDays: $('#NoofDays').html(),
+          clientEmailaddress: $('#ClientEmailaddress').html(),
+          clientName: $('#ClientName').html()
+        },
+        success: function (result) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(result))) {
+            if (result.Status == undefined && result.match('Error has occured') != null && result.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#WishListPreloader").hide();
+              if (result.Status) {
+                $("#msgDisplaySendMailSuccess").text(MyAccountConstants.WishListEnquiryEmailSuccessMsg);
+                $("#msgDisplaySendMailSuccess").show();
+                myAccountCommon.ResetGiftSelection();
+                setTimeout(function () {
+                  $("#msgDisplaySendMailSuccess").hide(); $("#msgDisplaySendMailSuccess").text('');
+                }, 3000);
+              }
+              else {
+                $("#msgDisplaySendMailError").text(MyAccountConstants.WishListEnquiryEmailErrorMsg);
+                $("#msgDisplaySendMailError").show();
+                setTimeout(function () {
+                  $("#msgDisplaySendMailError").hide(); $("#msgDisplaySendMailError").text('');
+                }, 3000);
+              }
+            }
+          }
+        },
+        error: function (msg) {
+          if (!myAccountCommon.isNullOrEmpty($.trim(msg.responseText))) {
+            if (msg.responseText.match('Error has occured') != null && msg.responseText.match('Error has occured').length > 0) {
+              window.location.href = MyAccountConstants.HostUrl + 'Account/Error';
+            }
+            else {
+              $("#WishListPreloader").hide();
+              console.log(msg);
+              $("#msgDisplaySendMailError").text(MyAccountConstants.WishListEnquiryEmailErrorMsg);
+              $("#msgDisplaySendMailError").show();
+              setTimeout(function () {
+                $("#msgDisplaySendMailError").hide();
+                $("#msgDisplaySendMailError").text('');
+              }, 3000);
+            }
+          }
+        }
+      });
+    }
+    catch (ex) {
+      $("#WishListPreloader").hide();
+      console.log(ex);
+    }
+  }
+}
